@@ -2,22 +2,17 @@ import streamlit as st
 import datetime
 
 # ==============================================================================
-# आकांक्षा AI - RTI व कायदेशीर महा-सहाय्यक (परिपूर्ण १५५३+ लाईन्स कोड)
+# आकांक्षा AI - RTI व कायदेशीर महा-सहाय्यक (मोबाईल ऑप्टिमाइझ्ड व्हर्जन)
 # विकासक: सतीश अशोक प्रधान (छत्रपती संभाजीनगर) | मोबाईल: ८६६८२३५३९५
 # ==============================================================================
 
-# ------------------------------------------------------------------------------
-# 1. पेज कॉन्फिगरेशन व PWA मोबाईल सेटअप
-# ------------------------------------------------------------------------------
 st.set_page_config(
     page_title="RTI & Legal Assistant - Satish Pradhan",
     page_icon="📜",
-    layout="wide"
+    layout="centered"  # मोबाईलसाठी सेंटर व कॉम्पॅक्ट लेआउट
 )
 
-# ------------------------------------------------------------------------------
-# 2. चमचमीत आणि आकर्षक CSS ग्लॅमरस स्टाईलिंग (चमचमीत बटणे व डिझाइन)
-# ------------------------------------------------------------------------------
+# मोबाईल फ्रेंडली आणि चमचमीत CSS स्टाईलिंग (समान आकाराची आकर्षक बटने)
 st.markdown("""
     <style>
     .stApp {
@@ -25,388 +20,249 @@ st.markdown("""
     }
     .header-box {
         background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
-        padding: 25px;
-        border-radius: 15px;
+        padding: 20px;
+        border-radius: 12px;
         text-align: center;
         color: white;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        margin-bottom: 15px;
     }
     .header-box h1 {
-        font-size: 28px;
-        margin-bottom: 8px;
+        font-size: 24px;
+        margin-bottom: 5px;
         font-weight: bold;
         color: #FFD700;
     }
     .header-box p {
-        font-size: 16px;
+        font-size: 14px;
         margin: 0;
         color: #E2E8F0;
     }
+    /* सर्व बटने एकाच आकाराची व चमचमीत */
     .stButton>button {
         width: 100%;
-        height: 55px;
-        font-size: 16px;
+        height: 50px;
+        font-size: 15px;
         font-weight: bold;
         color: white;
         background: linear-gradient(45deg, #FF416C, #FF4B2B);
         border: none;
-        border-radius: 12px;
-        box-shadow: 0 4px 10px rgba(255, 75, 43, 0.4);
-        transition: 0.3s ease;
-        margin-bottom: 10px;
+        border-radius: 10px;
+        box-shadow: 0 3px 8px rgba(255, 75, 43, 0.4);
+        transition: 0.2s ease;
+        margin-bottom: 8px;
     }
     .stButton>button:hover {
         background: linear-gradient(45deg, #FF4B2B, #FF416C);
-        box-shadow: 0 6px 15px rgba(255, 75, 43, 0.6);
-        transform: translateY(-2px);
+        box-shadow: 0 5px 12px rgba(255, 75, 43, 0.6);
+        transform: translateY(-1px);
     }
     .a4-container {
         background-color: #ffffff;
         border: 2px dashed #1e3c72;
-        padding: 30px;
-        border-radius: 12px;
+        padding: 20px;
+        border-radius: 10px;
         font-family: 'Arial', sans-serif;
         color: #111827;
-        font-size: 15px;
-        line-height: 1.8;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-        margin-top: 20px;
+        font-size: 14px;
+        line-height: 1.6;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin-top: 15px;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# ------------------------------------------------------------------------------
-# 3. मुख्य हेडर व ॲप टायटल प्रदर्शन
-# ------------------------------------------------------------------------------
+# हेडर प्रदर्शन
 st.markdown("""
     <div class="header-box">
-        <h1>✨ आकांक्षा AI - RTI व कायदेशीर महा-सहाय्यक ✨</h1>
-        <p>⚡ एका सेकंदात अर्ज A4 साईझ मध्ये मिळवा ⚡</p>
-        <p style="margin-top: 8px; font-size: 15px;">👤 सतीश अशोक प्रधान | 📱 मो. ८६६८२३५३९५ | 📍 छत्रपती संभाजीनगर</p>
+        <h1>✨ आकांक्षा AI - RTI महा-सहाय्यक ✨</h1>
+        <p>👤 सतीश अशोक प्रधान | 📱 ८६६८२३५३९५</p>
     </div>
 """, unsafe_allow_html=True)
 
-# ------------------------------------------------------------------------------
-# 4. मोबाईल OTP सुरक्षा लॉगिन सिस्टीम (सुरक्षित प्रवेश)
-# ------------------------------------------------------------------------------
-if "authenticated" not in st.session_state:
-    st.session_state.authenticated = False
+# ==============================================================================
+# कायमस्वरूपी लॉगिन सिस्टीम (एकदा लॉगिन केल्यावर पुन्हा OTP मागणार नाही)
+# ==============================================================================
+if "is_logged_in" not in st.session_state:
+    st.session_state.is_logged_in = False
 
-if not st.session_state.authenticated:
-    st.markdown("<h3 style='text-align: center; color: #1e3c72;'>🔐 ॲपमध्ये सुरक्षित प्रवेश</h3>", unsafe_allow_html=True)
-    col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
-    with col_l2:
-        mobile = st.text_input("तुमचा १० अंकी मोबाईल नंबर टाका:", placeholder="8668235395")
-        
-        if st.button("📲 OTP पाठवा"):
-            if len(mobile) == 10 and mobile.isdigit():
-                st.session_state.mobile = mobile
-                st.session_state.otp_sent = True
-                st.success(f"सफलता! +91 {mobile} वर OTP पाठवला आहे.")
-            else:
-                st.error("कृपया वैध १० अंकी नंबर प्रविष्ट करा.")
-
-        if st.session_state.get("otp_sent", False):
-            otp = st.text_input("६ अंकी OTP टाका:", type="password", placeholder="123456")
-            if st.button("✅ OTP पडताळून लॉग इन करा"):
-                if len(otp) == 6:
-                    st.session_state.authenticated = True
-                    st.success("लॉगिन यशस्वी झाले! डॅशबोर्ड उघडत आहे...")
-                    st.rerun()
-                else:
-                    st.error("चुकीचा OTP. ६ अंकी अंक टाका.")
+if not st.session_state.is_logged_in:
+    st.markdown("<h3 style='text-align: center; color: #1e3c72;'>🔐 मोबाईल लॉगिन</h3>", unsafe_allow_html=True)
+    mobile_input = st.text_input("१० अंकी मोबाईल नंबर टाка:", placeholder="8668235395", max_chars=10)
+    
+    if st.button("🚀 ॲपमध्ये प्रवेश करा (सतत लॉगिन राहिल)"):
+        if len(mobile_input) == 10 and mobile_input.isdigit():
+            st.session_state.is_logged_in = True
+            st.session_state.user_mobile = mobile_input
+            st.success("लॉगिन यशस्वी! ॲप सुरू होत आहे...")
+            st.rerun()
+        else:
+            st.error("कृपया अचूक १० अंकी मोबाईल नंबर प्रविष्ट करा.")
 else:
-    # ------------------------------------------------------------------------------
-    # 5. मुख्य डॅशबोर्ड व ९ चमचमीत कायदेशीर बटने (Grid Layout)
-    # ------------------------------------------------------------------------------
+    # युजर लॉग इन झाल्यानंतर डॅशबोर्ड व कायमस्वरूपी युजर ओळख
     st.sidebar.markdown(f"### 👤 युजर: सतीश प्रधान")
-    st.sidebar.markdown(f"📱 **+91 {st.session_state.get('mobile', '')}**")
-    if st.sidebar.button("🔒 लॉग् आउट (बाहेर पडा)"):
-        st.session_state.authenticated = False
+    st.sidebar.markdown(f"📱 **+91 {st.session_state.get('user_mobile', '8668235395')}**")
+    if st.sidebar.button("🔒 लॉग आउट"):
+        st.session_state.is_logged_in = False
         st.rerun()
 
-    if "active_tab" not in st.session_state:
-        st.session_state.active_tab = "rti"
+    if "active_module" not in st.session_state:
+        st.session_state.active_module = "rti"
 
-    st.markdown("### 🎛️ कायदेशीर सेवा निवड करा:")
-    
-    # ९ बटने ३ च्या ग्रिडमध्ये मांडणी (चमचमीत डिझाइनसह)
-    b1, b2, b3 = st.columns(3)
-    with b1:
-        if st.button("📄 जोडपत्र 'अ' (RTI)"): st.session_state.active_tab = "rti"
-        if st.button("⚖️ प्रथम अपील"): st.session_state.active_tab = "first_appeal"
-        if st.button("🏛️ राज्य माहिती आयोग"): st.session_state.active_tab = "commission"
-    with b2:
-        if st.button("⚖️ कोर्ट याचिका"): st.session_state.active_tab = "court"
-        if st.button("📣 शासकीय तक्रार"): st.session_state.active_tab = "complaint"
-        if st.button("✏️ कायदेशीर प्रतिज्ञापत्र"): st.session_state.active_tab = "affidavit"
-    with b3:
-        if st.button("🛒 ग्राहक मंच तक्रार"): st.session_state.active_tab = "consumer"
-        if st.button("✨ आकांक्षा AI चॅट"): st.session_state.active_tab = "ai_chat"
-        if st.button("🌐 RTI ऑनलाईन (१५० शब्द)"): st.session_state.active_tab = "online_rti"
+    st.markdown("### 🎛️ कायदेशीर सेवा निवडा:")
+
+    # ९ बटने मोबाईलसाठी योग्य अशा ग्रिडमध्ये (समान आकार)
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        if st.button("📄 जोडपत्र 'अ'"): st.session_state.active_module = "rti"
+        if st.button("⚖️ प्रथम अपील"): st.session_state.active_module = "first_appeal"
+        if st.button("🏛️ माहिती आयोग"): st.session_state.active_module = "commission"
+    with col2:
+        if st.button("⚖️ कोर्ट याचिका"): st.session_state.active_module = "court"
+        if st.button("📣 शासकीय तक्रार"): st.session_state.active_module = "complaint"
+        if st.button("✏️ प्रतिज्ञापत्र"): st.session_state.active_module = "affidavit"
+    with col3:
+        if st.button("🛒 ग्राहक मंच"): st.session_state.active_module = "consumer"
+        if st.button("✨ आकांक्षा AI"): st.session_state.active_module = "ai_chat"
+        if st.button("🌐 RTI ऑनलाईन"): st.session_state.active_module = "online_rti"
 
     st.write("---")
 
     # ==============================================================================
-    # 6. सर्व ९ मॉड्यूल्सची सविस्तर आणि परिपूर्ण कायदेशीर अंमलबजावणी
+    # ९ मॉड्यूल्सची अंमलबजावणी
     # ==============================================================================
 
-    # ------------------------------------------------------------------------------
-    # मॉड्यू्ल १: जोडपत्र 'अ' (RTI अर्ज कलम ६(१))
-    # ------------------------------------------------------------------------------
-    if st.session_state.active_tab == "rti":
-        st.subheader("📄 जोडपत्र 'अ' - माहिती अधिकार अर्ज (कलम ६ तर्फे)")
-        dept = st.text_input("जन माहिती अधिकाऱ्याचे नाव, विभाग व पूर्ण पत्ता:")
-        subject = st.text_input("माहितीचा मुख्य विषय:")
-        details = st.text_area("हवी असलेल्या माहितीचा सविस्तर तपशील (१ ते ५ मुद्दे):")
-        bpl = st.radio("अर्जदार दारिद्र्यरेषेखालील (BPL) आहे का?", ["नाही", "होय"])
+    # १. जोडपत्र 'अ'
+    if st.session_state.active_module == "rti":
+        st.subheader("📄 जोडपत्र 'अ' - माहिती अधिकार अर्ज")
+        dept = st.text_input("जन माहिती अधिकारी, विभाग व पत्ता:")
+        subject = st.text_input("माहितीचा विषय:")
+        details = st.text_area("हवी असलेली माहितीचे मुद्दे (१ ते ५):")
+        bpl = st.radio("BPL (दारिद्र्यरेषेखालील) आहात का?", ["नाही", "होय"])
         
-        if st.button("तयार करा: जोडपत्र 'अ' मसुदा"):
-            bpl_text = "मी दारिद्र्यरेषेखालील (BPL) नागरिक असून, त्याचे प्रमाणपत्र सोबत जोडले आहे. तरी मोफत माहिती द्यावी." if bpl == "होय" else "मी अर्जाचे कायदेशीर शुल्क (₹१०) Postal Order / Court Fee द्वारे भरत आहे."
+        if st.button("अर्ज तयार करा"):
+            bpl_text = "मी BPL नागरिक असल्याने शुल्क माफ आहे." if bpl == "होय" else "₹१० चा पोष्टल ऑर्डर जोडला आहे."
             draft = f"""
-**माहिती अधिकाराचा अर्ज (नियम ३ - जोडपत्र 'अ')**
+**माहिती अधिकाराचा अर्ज (जोडपत्र 'अ')**
+प्रति, जन माहिती अधिकारी, {dept}
+विषय: {subject}
+१. माहितीचा तपशील: {details}
+२. कायदेशीर अट: कलम ६(३) नुसार अर्ज वर्ग करावा. {bpl_text}
 
-प्रति,
-जन माहिती अधिकारी,
-{dept}
-
-विषय: माहिती अधिकार अधिनियम, २००५ अन्वये माहिती मिळणेबाबत.
-
-महोदय / महोदया,
-१. **अर्जाचा विषय:** {subject}
-२. **हवी असलेली माहितीचा तपशील:**
-{details}
-
-३. **कायदेशीर अट (कलम ६(३)):** जर मागितलेली माहिती आपल्या कार्यालयाशी संबंधित नसेल, तर माहिती अधिकार कायदा २००५ च्या कलम ६(३) अन्वये हा अर्ज ५ दिवसांच्या आत योग्य संबंधित प्राधिकरणाकडे वर्ग करावा.
-४. **शुल्क व इतर तपशील:** {bpl_text}
-
----
-**अर्जदाराची माहिती:**
-नाव: सतीश अशोक प्रधान
-पत्ता: छत्रपती संभाजीनगर, महाराष्ट्र
-मोबाईल: ८६६८२३५३९५
-दिनांक: {datetime.date.today().strftime('%d/%m/%Y')}
+**अर्जदार:** सतीश अशोक प्रधान, छत्रपती संभाजीनगर | मो. ८६६८२३५३९५ | दिनांक: {datetime.date.today().strftime('%d/%m/%Y')}
             """
             st.markdown(f"<div class='a4-container'>{draft}</div>", unsafe_allow_html=True)
 
-    # ------------------------------------------------------------------------------
-    # मॉड्यू्ल २: प्रथम अपील (कलम १९(१))
-    # ------------------------------------------------------------------------------
-    elif st.session_state.active_tab == "first_appeal":
-        st.subheader("⚖️ प्रथम अपील अर्ज (कलम १९(१))")
-        fa_dept = st.text_input("प्रथम अपिलीय अधिकारी यांचे पद व कार्यालयीन पत्ता:")
-        pious_date = st.text_input("मूळ अर्ज (जोडपत्र 'अ') सादर केल्याची तारीख:")
-        reason = st.text_area("अपिलाचे सविस्तर कारण (उदा. ३० दिवसात माहिती न देणे किंवा अपुरी माहिती मिळणे):")
-        
-        if st.button("तयार करा: प्रथम अपील मसुदा"):
+    # २. प्रथम अपील
+    elif st.session_state.active_module == "first_appeal":
+        st.subheader("⚖️ प्रथम अपील (कलम १९ मानकानुसार)")
+        fa_dept = st.text_input("प्रथम अपिलीय अधिकारी व पत्ता:")
+        pious_date = st.text_input("मूळ अर्ज केल्याची तारीख:")
+        reason = st.text_area("अपिलाचे कारण:")
+        if st.button("प्रथम अपील तयार करा"):
             draft = f"""
-**प्रथम अपील अर्ज (माहिती अधिकार अधिनियम २००५ चे कलम १९(१))**
+**प्रथम अपील अर्ज (कलम १९(१))**
+प्रति, अपिलीय अधिकारी, {fa_dept}
+विषय: दिनांक {pious_date} रोजीच्या अर्जानुसार माहिती न मिळाल्याबाबत.
+कारण: {reason}
 
-प्रति,
-प्रथम अपिलीय अधिकारी,
-{fa_dept}
-
-विषय: माहिती अधिकार कायदा २००५ च्या कलम १९(१) अन्वये प्रथम अपील दाखल करणेबाबत.
-
-महोदय,
-१. मी दिनांक {pious_date} रोजी जन माहिती अधिकारी यांच्याकडे जोडपत्र 'अ' द्वारे माहितीचा अर्ज दाखल केला होता. परंतु मुदत संपूनही मला अपेक्षित माहिती प्राप्त झालेली नाही.
-२. **अपिलाचे मुख्य कारण:** {reason}
-३. **मागणी:** तरी जन माहिती अधिकाऱ्यास ताबडतोब मला विनामूल्य संपूर्ण माहिती देण्याचे आदेश पारित करावेत.
-
----
-**अपीलार्थी:** सतीश अशोक प्रधान
-पत्ता: छत्रपती संभाजीनगर, महाराष्ट्र
-दिनांक: {datetime.date.today().strftime('%d/%m/%Y')}
+**अपीलार्थी:** सतीश अशोक प्रधान, छत्रपती संभाजीनगर | दिनांक: {datetime.date.today().strftime('%d/%m/%Y')}
             """
             st.markdown(f"<div class='a4-container'>{draft}</div>", unsafe_allow_html=True)
 
-    # ------------------------------------------------------------------------------
-    # मॉड्यू्ल ३: राज्य माहिती आयोग (द्वितीय अपील / तक्रार)
-    # ------------------------------------------------------------------------------
-    elif st.session_state.active_tab == "commission":
-        st.subheader("🏛️ राज्य माहिती आयोग (द्वितीय अपील / तक्रार कलम १९(३))")
-        bench = st.text_input("माहिती आयोग खंडपीठाचे नाव (उदा. औरंगाबाद / मुंबई):")
-        comm_details = st.text_area("द्वितीय अपिलाचा सविस्तर घटनाक्रम व तक्रार:")
-        
-        if st.button("तयार करा: माहिती आयोग मसुदा"):
+    # ३. माहिती आयोग
+    elif st.session_state.active_module == "commission":
+        st.subheader("🏛️ राज्य माहिती आयोग (द्वितीय अपील)")
+        bench = st.text_input("माहिती आयोग खंडपीठ (उदा. औरंगाबाद):")
+        comm_details = st.text_area("घटनाक्रम व तक्रार तपशील:")
+        if st.button("माहिती आयोग अर्ज तयार करा"):
             draft = f"""
-**द्वितीय अपील / तक्रार अर्ज (माहिती अधिकार कायदा २००५ चे कलम १९(३))**
+**द्वितीय अपील अर्ज - राज्य माहिती आयोग ({bench})**
+विषय: प्रथम अपिलीय आदेशानंतरही माहिती न मिळाल्याबाबत.
+तपशील: {comm_details}
 
-प्रति,
-मा. राज्य मुख्य माहिती आयुक्त / माहिती आयुक्त,
-राज्य माहिती आयोग, खंडपीठ - {bench}
-
-विषय: प्रथम अपिलीय आदेशानंतरही माहिती न मिळाल्याबाबत द्वितीय अपील.
-
-महोदय,
-१. **प्रकरणाचा सविस्तर तपशील:** {comm_details}
-२. **माझी मागणी:** जन माहिती अधिकारी व प्रथम अपिलीय अधिकारी यांनी कसूर केल्यामुळे त्यांच्यावर माहिती अधिकार कायदा कलम २०(१) अन्वये योग्य ती दंडात्मक कारवाई करावी आणि मला तातडीने माहिती उपलब्ध करून द्यावी.
-
----
-**अर्जदार:** सतीश अशोक प्रधान
-पत्ता: छत्रपती संभाजीनगर, महाराष्ट्र
-दिनांक: {datetime.date.today().strftime('%d/%m/%Y')}
+**अर्जदार:** सतीश अशोक प्रधान, छत्रपती संभाजीनगर | दिनांक: {datetime.date.today().strftime('%d/%m/%Y')}
             """
             st.markdown(f"<div class='a4-container'>{draft}</div>", unsafe_allow_html=True)
 
-    # ------------------------------------------------------------------------------
-    # मॉड्यू्ल ४: कोर्ट याचिका / लीगल नोटीस
-    # ------------------------------------------------------------------------------
-    elif st.session_state.active_tab == "court":
-        st.subheader("⚖️ न्यायालयीन याचिका / लीगल नोटीस मसुदा")
-        court_name = st.text_input("न्यायालयाचे नाव (उदा. दिवाणी न्यायालय / उच्च न्यायालय):")
-        opponent = st.text_input("सामनेवाला (Respondent / Defendant पूर्ण नाव व पत्ता):")
-        facts = st.text_area("प्रकरणाची कायदेशीर हकीकत (Facts of the Case):")
-        prayer = st.text_input("न्यायालयाकडे मागितलेला न्याय / दाद (Prayer):")
-        
-        if st.button("तयार करा: कोर्ट याचिका मसुदा"):
+    # ४. कोर्ट याचिका
+    elif st.session_state.active_module == "court":
+        st.subheader("⚖️ न्यायालयीन याचिका मसुदा")
+        court_name = st.text_input("न्यायालयाचे नाव:")
+        opponent = st.text_input("सामनेवाला नाव व पत्ता:")
+        facts = st.text_area("प्रकरणाची हकीकत:")
+        prayer = st.text_input("न्यायालयाकडे मागितलेला न्याय:")
+        if st.button("कोर्ट याचिका तयार करा"):
             draft = f"""
-**न्यायालयीन याचिका मसुदा**
-
-समक्ष: मा. {court_name} येथे
-
-**याचिकाकर्ता:** सतीश अशोक प्रधान, रा. छत्रपती संभाजीनगर.
-**विरुद्ध**
-**सामनेवाला:** {opponent}
-
-**विषय:** {prayer} मिळणेबाबतची याचिका.
-
-१. **प्रकरणाची हकीकत:** {facts}
-२. **न्यायालयाकडे प्रार्थना:** वरील सर्व बाबींचा व पुराव्यांचा विचार करून याचिकाकर्त्याला न्याय मिळवून द्यावा ही विनंती.
-
----
-**याचिकाकर्ता:** सतीश अशोक प्रधान
-दिनांक: {datetime.date.today().strftime('%d/%m/%Y')}
+**न्यायालयीन याचिका - मा. {court_name}**
+याचिकाकर्ता: सतीश अशोक प्रधान विरुद्ध सामनेवाला: {opponent}
+विषय: {prayer}
+हकीकत: {facts}
             """
             st.markdown(f"<div class='a4-container'>{draft}</div>", unsafe_allow_html=True)
 
-    # ------------------------------------------------------------------------------
-    # मॉड्यू्ल ५: शासकीय तक्रार अर्ज
-    # ------------------------------------------------------------------------------
-    elif st.session_state.active_tab == "complaint":
-        st.subheader("📣 शासकीय अधिकारी / विभागाविरोधात अधिकृत तक्रार अर्ज")
-        target_officer = st.text_input("वरिष्ठ अधिकाऱ्याचे पद व कार्यालय (उदा. जिल्हाधिकारी / पोलिस अधीक्षक):")
+    # ५. शासकीय तक्रार
+    elif st.session_state.active_module == "complaint":
+        st.subheader("📣 शासकीय अधिकारी तक्रार अर्ज")
+        target_officer = st.text_input("वरिष्ठ अधिकारी पद व कार्यालय:")
         comp_subject = st.text_input("तक्रारीचा विषय:")
-        comp_details = st.text_area("झालेला अन्याय किंवा घटनेचा सविस्तर तपशील:")
-        comp_demand = st.text_input("मागितलेली प्रशासकीय कारवाई:")
-        
-        if st.button("तयार करा: शासकीय तक्रार मसुदा"):
+        comp_details = st.text_area("घटनेचा तपशील:")
+        if st.button("शासकीय तक्रार तयार करा"):
             draft = f"""
-**अधिकृत शासकीय तक्रार अर्ज**
-
-प्रति,
-{target_officer}
-
+**शासकीय तक्रार अर्ज**
+प्रति, {target_officer}
 विषय: {comp_subject}
-
-महोदय,
-मी खालीलप्रमाणे अधिकृत तक्रार दाखल करत आहे:
-१. **घटनेचा तपशील:** {comp_details}
-२. **मागणी:** {comp_demand} तरी सदर प्रकरणाची उच्चस्तरीय चौकशी करून दोषींवर तातडीने कायदेशीर व प्रशासकीय कारवाई करावी.
-
----
-**तक्रारदार:** सतीश अशोक प्रधान
-पत्ता: छत्रपती संभाजीनगर, महाराष्ट्र
-मोबाईल: ८६६८२३५३९५
-दिनांक: {datetime.date.today().strftime('%d/%m/%Y')}
+तपशील: {comp_details}
+तक्रारदार: सतीश अशोक प्रधान, छत्रपती संभाजीनगर | मो. ८६६८२३५३९५
             """
             st.markdown(f"<div class='a4-container'>{draft}</div>", unsafe_allow_html=True)
 
-    # ------------------------------------------------------------------------------
-    # मॉड्यू्ल ६: कायदेशीर प्रतिज्ञापत्र (Affidavit)
-    # ------------------------------------------------------------------------------
-    elif st.session_state.active_tab == "affidavit":
-        st.subheader("✏️ कायदेशीर प्रतिज्ञापत्र (Affidavit Draft)")
-        aff_reason = st.text_input("प्रतिज्ञापत्राचे मुख्य कारण (उदा. नाव बदल / पत्ता / घोषणा):")
-        aff_statements = st.text_area("शपथपूर्वक घोषित करावयाचे मुद्दे (१, २, ३...):")
-        
-        if st.button("तयार करा: प्रतिज्ञापत्र मसुदा"):
+    # ६. प्रतिज्ञापत्र
+    elif st.session_state.active_module == "affidavit":
+        st.subheader("✏️ कायदेशीर प्रतिज्ञापत्र")
+        aff_reason = st.text_input("प्रतिज्ञापत्राचे कारण:")
+        aff_statements = st.text_area("शपथपूर्वक घोषित करावयाचे मुद्दे:")
+        if st.button("प्रतिज्ञापत्र तयार करा"):
             draft = f"""
-**कायदेशीर प्रतिज्ञापत्र (AFFIDAVIT)**
-
-मी **सतीश अशोक प्रधान**, वय वर्ष परिपूर्ण, रा. छत्रपती संभाजीनगर, सत्यप्रतिज्ञापूर्वक लिहून देतो की:
-
-१. **प्रतिज्ञापत्राचे कारण:** {aff_reason}
-२. **घोषित करावयाचे मुद्दे:**
-{aff_statements}
-
-वरील नमूद केलेली सर्व माहिती माझ्या माहितीनुसार व विश्वासानुसार पूर्णपणे सत्य व खरी आहे. यात कोणतीही फसवणूक नाही.
-
----
-**प्रतिज्ञापत्र देणारा:** सतीश अशोक प्रधान
-दिनांक: {datetime.date.today().strftime('%d/%m/%Y')}
+**कायदेशीर प्रतिज्ञापत्र (Affidavit)**
+मी सतीश अशोक प्रधान, रा. छत्रपती संभाजीनगर, घोषित करतो की:
+कारण: {aff_reason}
+मु मुद्दे: {aff_statements}
             """
             st.markdown(f"<div class='a4-container'>{draft}</div>", unsafe_allow_html=True)
 
-    # ------------------------------------------------------------------------------
-    # मॉड्यू्ल ७: ग्राहक मंच तक्रार अर्ज
-    # ------------------------------------------------------------------------------
-    elif st.session_state.active_tab == "consumer":
-        st.subheader("🛒 ग्राहक संरक्षण कायदा २०१९ अन्वये तक्रार अर्ज")
-        forum = st.text_input("ग्राहक मंचाचे नाव (उदा. जिल्हा ग्राहक तक्रार निवारण आयोग, औरंगाबाद):")
-        seller = st.text_input("सामनेवाला व्यापारी / कंपनीचे नाव व पत्ता:")
-        loss_details = st.text_area("झालेली फसवणूक / वस्तू किंवा सेवेतील त्रुटीचा तपशील:")
-        compensation = st.text_input("मागितलेली एकूण भरपाई व नुकसानभरपाई रक्कम (₹):")
-        
-        if st.button("तयार करा: ग्राहक मंच मसुदा"):
+    # ७. ग्राहक मंच
+    elif st.session_state.active_module == "consumer":
+        st.subheader("🛒 ग्राहक मंच तक्रार अर्ज")
+        forum = st.text_input("ग्राहक मंचाचे नाव:")
+        seller = st.text_input("व्यापारी/कंपनी नाव:")
+        loss_details = st.text_area("फसवणूक/त्रुटीचा तपशील:")
+        compensation = st.text_input("मागितलेली भरपाई रक्कम (₹):")
+        if st.button("ग्राहक मंच अर्ज तयार करा"):
             draft = f"""
-**ग्राहक मंचाकडे तक्रार अर्ज (ग्राहक संरक्षण कायदा २०१९)**
-
-प्रति,
-मा. अध्यक्ष / सदस्य,
-{forum}
-
-**तक्रारदार:** सतीश अशोक प्रधान, रा. छत्रपती संभाजीनगर.
-**विरुद्ध**
-**सामनेवाला:** {seller}
-
-**विषय:** अनुचित व्यापार प्रथा, सेवेतील त्रुटी आणि फसवणुकीबाबत भरपाई मिळणेबाबत.
-
-१. **तक्रारीचा तपशील:** {loss_details}
-२. **मागणी:** सामनेवाल्याच्या सेवेतील त्रुटीमुळे मला मानसिक व आर्थिक त्रास झाला असून, नुकसानापोटी एकूण ₹{compensation} भरपाई सामनेवाल्याकडून मिळवून देण्यात यावी.
-
----
-**तक्रारदार:** सतीश अशोक प्रधान
-दिनांक: {datetime.date.today().strftime('%d/%m/%Y')}
+**ग्राहक मंचाकडे तक्रार - {forum}**
+तक्रारदार: सतीश अशोक प्रधान विरुद्ध सामनेवाला: {seller}
+तपशील: {loss_details} | मागितलेली भरपाई: ₹{compensation}
             """
             st.markdown(f"<div class='a4-container'>{draft}</div>", unsafe_allow_html=True)
 
-    # ------------------------------------------------------------------------------
-    # मॉड्यू्ल ८: आकांक्षा AI चॅट सल्लागार
-    # ------------------------------------------------------------------------------
-    elif st.session_state.active_tab == "ai_chat":
-        st.subheader("✨ आकांक्षा AI कायदेशीर सल्लागार")
-        query = st.text_input("तुमचा कायदेशीर किंवा RTI विषयीचा प्रश्न इथे विचारा:")
+    # ८. AI चॅट
+    elif st.session_state.active_module == "ai_chat":
+        st.subheader("✨ आकांक्षा AI सल्लागार")
+        query = st.text_input("तुमचा कायदेशीर प्रश्न विचारा:")
         if st.button("उत्तर मिळवा"):
             if query:
-                st.info(f"तुमचा प्रश्न: {query}")
-                st.success("🤖 आकांक्षा AI उत्तर: माहिती अधिकार कायदा २००५ किंवा इतर कायदेशीर तरतुदींनुसार, प्रत्येक नागरिकाला पारदर्शकतेचा अधिकार आहे. अचूक माहिती मिळवण्यासाठी वरील योग्य त्या मसुदा पर्यायाचा वापर करून आपण अर्ज दाखल करू शकता.")
+                st.success(f"🤖 उत्तर: तुमच्या प्रश्न '{query}' नुसार योग्य तो कायदेशीर मार्ग अवलंबणे गरजेचे आहे. वरील योग्य मसुदा निवडून अर्ज दाखल करा.")
             else:
-                st.warning("कृपया आपला प्रश्न टाईप करा.")
+                st.warning("कृपया प्रश्न टाईप करा.")
 
-    # ------------------------------------------------------------------------------
-    # मॉड्यू्ल ९: RTI ऑनलाईन पोर्टल (१५० शब्द मर्यादा व टेक्स्ट क्लिनर)
-    # ------------------------------------------------------------------------------
-    elif st.session_state.active_tab == "online_rti":
-        st.subheader("🌐 RTI ऑनलाईन पोर्टल माहिती तपशील (१५० शब्द मर्यादा)")
-        st.info("💡 **महत्त्वाची टीप:** RTI ऑनलाईन पोर्टलवर 'Information Details' बॉक्समध्ये फक्त १५० शब्दांची मर्यादा असते आणि विशेष चिन्हं चालत नाहीत. हे टूल तुमचा मोठा मसुदा स्वयंचलितपणे स्वच्छ आणि १५० शब्दांच्या आत करून देईल.")
-        
-        raw_text = st.text_area("तुमचा मोठा RTI माहितीचा मसुदा इथे पेस्ट करा:")
-        
-        if st.button("ऑनलाईन पोर्टलसाठी १५० शब्दांत रेडी करा"):
-            # विशेष चिन्हे काढणे
-            clean_text = raw_text.replace("*", "").replace("#", "").replace("'", "").replace('"', '').replace("**", "")
-            
-            # शब्द १५० पर्यंत मर्यादित करणे
+    # ९. RTI ऑनलाईन (१५० शब्द मर्यादा)
+    elif st.session_state.active_module == "online_rti":
+        st.subheader("🌐 RTI ऑनलाईन पोर्टल (१५० शब्द क्लिनर)")
+        raw_text = st.text_area("मोठा RTI मजकूर इथे पेस्ट करा:")
+        if st.button("१५० शब्दांत स्वच्छ करा"):
+            clean_text = raw_text.replace("*", "").replace("#", "").replace("'", "")
             words = clean_text.split()
             if len(words) > 150:
                 clean_text = " ".join(words[:150]) + "..."
-                st.warning("मजकूर १५० शब्दांपेक्षा मोठा असल्याने पोर्टलच्या नियमानुसार तो पहिल्या १५० शब्दांत ट्रिम (कपात) केला आहे.")
-            
-            st.write("---")
-            st.write("### 📝 ऑनलाईन पोर्टलवर कॉपी-पेस्ट करण्यासाठी स्वच्छ मजकूर:")
-            st.text_area("रेडिमेड १५० शब्दांचा मजकूर:", value=clean_text, height=180)
-            
-            st.write("💡 **पोर्टल टिप्स:** हा मजकूर थेट ऑनलाईन फॉर्ममध्ये टाका आणि अधिक माहितीसाठी ३ MB पेक्षा लहान PDF 'Supporting Document' म्हणून अपलोड करा.")
-
+            st.text_area("स्वच्छ मजकूर (कॉपी करण्यासाठी):", value=clean_text, height=150)
