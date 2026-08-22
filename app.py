@@ -8,7 +8,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# कस्टम CSS - ४x२ ग्रिड आणि मोबाईल ॲप डिझाइन
+# कस्टम CSS - मोबाईल ॲप डिझाइन
 st.markdown("""
     <style>
     .main-title {
@@ -24,11 +24,11 @@ st.markdown("""
     }
     .stButton>button {
         width: 100%;
-        height: 60px;
-        font-size: 16px;
+        height: 55px;
+        font-size: 15px;
         font-weight: bold;
         border-radius: 10px;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
     }
     .a4-container {
         background-color: #ffffff;
@@ -40,7 +40,7 @@ st.markdown("""
         line-height: 1.6;
     }
     </style>
-""", unsafe_unsafe_html=True)
+""", unsafe_allow_html=True)
 
 # हेडर
 st.markdown("<h1 class='main-title'>📜 आकांक्षा AI कायदेशीर व RTI सहाय्यक</h1>", unsafe_allow_html=True)
@@ -74,7 +74,7 @@ if not st.session_state.authenticated:
                 st.error("चुकीचा OTP. ६ अंकी OTP टाका.")
 
 else:
-    # ३. मुख्य डॅशबोर्ड व ४x२ ग्रिड बटने
+    # ३. मुख्य डॅशबोर्ड व ९ बटनांची रचना
     st.sidebar.success(f"लॉगिन: +91 {st.session_state.get('mobile', '')}")
     if st.sidebar.button("लॉगआउट"):
         st.session_state.authenticated = False
@@ -83,7 +83,7 @@ else:
     if "active_tab" not in st.session_state:
         st.session_state.active_tab = "rti"
 
-    # ४x२ बटणांची रचना
+    # ९ बटनांचे कॉलम (४ स्तंभ)
     col1, col2, col3, col4 = st.columns(4)
     with col1:
         if st.button("📄 जोडपत्र 'अ'"): st.session_state.active_tab = "rti"
@@ -97,6 +97,9 @@ else:
     with col4:
         if st.button("✨ AI चॅट"): st.session_state.active_tab = "ai_chat"
         if st.button("🛒 ग्राहक मंच"): st.session_state.active_tab = "consumer"
+        
+    # ९ वे नवीन बटण (ऑनलाईन पोर्टल गाईड)
+    if st.button("🌐 RTI ऑनलाईन पोर्टल गाईड (१५० शब्द)"): st.session_state.active_tab = "online_rti"
 
     st.write("---")
 
@@ -186,7 +189,7 @@ else:
             """
             st.markdown(f"<div class='a4-container'>{draft}</div>", unsafe_allow_html=True)
 
-    # ४. शासकीय तक्रार (यात RTI चा शब्द असणार नाही)
+    # ४. शासकीय तक्रार
     elif st.session_state.active_tab == "complaint":
         st.subheader("📣 शासकीय अधिकारी / विभागाविरोधात अधिकृत तक्रार अर्ज")
         target_officer = st.text_input("वरिष्ठ अधिकाऱ्याचे पद व कार्यालय (उदा. जिल्हाधिकारी / पोलिस आयुक्त):")
@@ -233,7 +236,7 @@ else:
 विरुद्ध
 सामनेवाला: {seller}
 
-विषय: अनचित व्यापार प्रथा आणि सेवेतील त्रुटीबाबत भरपाई मिळणेबाबत.
+विषय: अनुचित व्यापार प्रथा आणि सेवेतील त्रुटीबाबत भरपाई मिळणेबाबत.
 
 १. प्रकरणाचा तपशील: {loss_details}
 २. मागणी: सामनेवाल्याकडून नुकसानापोटी ₹{compensation} भरपाई मिळावी.
@@ -304,3 +307,28 @@ else:
                 st.success("AI उत्तर: माहिती अधिकार २००५ अंतर्गत कोणत्याही शासकीय विभागाकडून सार्वजनिक कामाची माहिती मागवण्याचा तुम्हाला पूर्ण अधिकार आहे. यासाठी संबंधित विभागाच्या जन माहिती अधिकाऱ्याकडे अर्ज सादर करावा.")
             else:
                 st.warning("कृपया प्रश्न टाईप करा.")
+
+    # ९. RTI ऑनलाईन पोर्टल गाईड (फक्त १५० शब्द आणि क्लिन टेक्स्ट)
+    elif st.session_state.active_tab == "online_rti":
+        st.subheader("🌐 RTI ऑनलाईन पोर्टल माहिती तपशील (१५० शब्द मर्यादा)")
+        st.info("RTI ऑनलाईन पोर्टलवर माहितीच्या तपशीलासाठी फक्त १५० शब्दांची मर्यादा असते आणि विशेष चिन्हं चालत नाहीत. तुमचा मसुदा इथे टाका, तो पोर्टलसाठी अगदी अचूक तयार होईल.")
+        
+        raw_text = st.text_area("तुमचा मोठा RTI मसुदा इथे पेस्ट करा:")
+        
+        if st.button("ऑनलाईन पोर्टलसाठी १५० शब्दांत रेडी करा"):
+            # विशेष चिन्हे काढणे
+            clean_text = raw_text.replace("*", "").replace("#", "").replace("'", "").replace('"', '').replace("**", "")
+            
+            # शब्द १५० पर्यंत मर्यादित करणे (जर मोठे असेल तर)
+            words = clean_text.split()
+            if len(words) > 150:
+                clean_text = " ".join(words[:150]) + "..."
+                st.warning("मजकूर १५० शब्दांपेक्षा मोठा असल्याने पोर्टलच्या नियमानुसार तो पहिल्या १५० शब्दांत ट्रिम (कपात) केला आहे.")
+            
+            st.write("---")
+            st.write("### 📝 ऑनलाईन पोर्टलवर कॉपी-पेस्ट करण्यासाठी स्वच्छ मजकूर:")
+            st.text_area("रेडिमेड १५० शब्दांचा मजकूर:", value=clean_text, height=180)
+            
+            st.write("💡 **महत्त्वाच्या टिप्स:**")
+            st.write("१. हा मजकूर थेट ऑनलाईन पोर्टलच्या 'Information Details' बॉक्समध्ये कॉपी-पेस्ट करा.")
+            st.write("२. जर माहिती मोठी असेल, तर संपूर्ण तपशील असलेली PDF फाईल (३ MB पेक्षा लहान) 'Supporting Document' म्हणून अपलोड करा.")
