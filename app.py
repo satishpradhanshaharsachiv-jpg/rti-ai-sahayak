@@ -13,224 +13,414 @@ st.set_page_config(
 )
 
 # =========================================================
-# MOBILE-FIRST CSS
+# MOBILE APP CSS
 # =========================================================
 
 st.markdown("""
 <style>
 
-html, body, [class*="css"] {
-    font-family: "Noto Sans Devanagari", "Noto Sans", sans-serif;
+* {
+    box-sizing: border-box;
 }
 
-/* पूर्ण ॲप */
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
 .stApp {
     background: #f5f7fb;
 }
 
-/* Desktop width कमी */
+/* मुख्य कंटेनर */
 .block-container {
-    max-width: 720px !important;
-    padding-top: 10px !important;
+    max-width: 900px !important;
+    padding-top: 12px !important;
     padding-left: 12px !important;
     padding-right: 12px !important;
-    padding-bottom: 30px !important;
+    padding-bottom: 35px !important;
 }
 
-/* वरचा Streamlit header कमी */
+/* Streamlit वरची पट्टी */
 header[data-testid="stHeader"] {
-    background: transparent !important;
     height: 35px !important;
-}
-
-/* Header */
-.mobile-header {
-    background: white;
-    border-radius: 20px;
-    padding: 15px 10px 12px 10px;
-    margin-bottom: 10px;
-    text-align: center;
-    box-shadow: 0 3px 15px rgba(0,0,0,0.08);
-}
-
-.mobile-header-title {
-    font-size: 25px;
-    font-weight: 900;
-    color: #08a678;
-    margin: 0;
-}
-
-.mobile-header-sub {
-    font-size: 12px;
-    color: #666;
-    margin-top: 4px;
-}
-
-.tag {
-    display: inline-block;
-    margin-top: 8px;
-    padding: 7px 15px;
-    border-radius: 25px;
-    background: #fff3cd;
-    border: 1px dashed #e0a800;
-    color: #b06b00;
-    font-size: 13px;
-    font-weight: 800;
+    background: transparent !important;
 }
 
 /* =========================================================
-   MOBILE APP BUTTONS
+   HEADER
+   ========================================================= */
+
+.app-header {
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 20px 12px 16px 12px;
+    text-align: center;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    margin-bottom: 22px;
+}
+
+.app-title {
+    font-size: 30px;
+    font-weight: 900;
+    color: #1d2739;
+    margin-bottom: 8px;
+}
+
+.app-title span {
+    color: #0aa678;
+}
+
+.app-tag {
+    display: inline-block;
+    background: #fff3c4;
+    color: #b86b00;
+    border: 2px dashed #e9ad25;
+    border-radius: 25px;
+    padding: 8px 17px;
+    font-size: 14px;
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+
+.app-info {
+    color: #555;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+/* =========================================================
+   SECTION TITLE
+   ========================================================= */
+
+.service-title {
+    font-size: 25px;
+    font-weight: 900;
+    color: #202838;
+    margin: 8px 0 15px 5px;
+}
+
+/* =========================================================
+   3 x 3 GRID
    ========================================================= */
 
 div[data-testid="column"] {
-    padding: 4px !important;
+    padding: 6px !important;
 }
 
+/* सर्व बटणे */
 div.stButton > button {
+
     width: 100% !important;
-    min-height: 105px !important;
-    height: 105px !important;
+
+    min-height: 185px !important;
+    height: 185px !important;
 
     border: none !important;
-    border-radius: 23px !important;
+    border-radius: 25px !important;
 
-    color: white !important;
-    font-size: 16px !important;
+    color: #ffffff !important;
+
+    font-size: 18px !important;
     font-weight: 900 !important;
-
-    box-shadow: 0 5px 12px rgba(0,0,0,0.18) !important;
 
     white-space: pre-line !important;
 
-    transition: transform 0.15s ease,
-                box-shadow 0.15s ease !important;
+    box-shadow:
+        0 7px 18px rgba(0,0,0,0.16) !important;
+
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease !important;
+
+    padding: 12px !important;
 }
 
+/* Touch effect */
 div.stButton > button:hover {
-    transform: translateY(-3px) !important;
-    box-shadow: 0 8px 18px rgba(0,0,0,0.25) !important;
+    transform: translateY(-4px) !important;
+    box-shadow:
+        0 11px 25px rgba(0,0,0,0.22) !important;
 }
 
 div.stButton > button:active {
     transform: scale(0.96) !important;
 }
 
-/* प्रत्येक बटणासाठी रंग */
+/* =========================================================
+   ROW 1 COLORS
+   ========================================================= */
 
+div[data-testid="stHorizontalBlock"]:nth-of-type(1)
 div[data-testid="column"]:nth-child(1)
 div.stButton > button {
-    background: linear-gradient(135deg,#00b894,#00a878) !important;
+
+    background: linear-gradient(
+        145deg,
+        #8bea70,
+        #52c878
+    ) !important;
 }
 
+div[data-testid="stHorizontalBlock"]:nth-of-type(1)
 div[data-testid="column"]:nth-child(2)
 div.stButton > button {
-    background: linear-gradient(135deg,#ff5f6d,#ff9966) !important;
+
+    background: linear-gradient(
+        145deg,
+        #ffc45c,
+        #ff9f1c
+    ) !important;
 }
 
+div[data-testid="stHorizontalBlock"]:nth-of-type(1)
 div[data-testid="column"]:nth-child(3)
 div.stButton > button {
-    background: linear-gradient(135deg,#19243d,#273657) !important;
+
+    background: linear-gradient(
+        145deg,
+        #9ca9ff,
+        #6378e8
+    ) !important;
 }
 
-/* दुसरी row */
+/* =========================================================
+   ROW 2 COLORS
+   ========================================================= */
+
 div[data-testid="stHorizontalBlock"]:nth-of-type(2)
 div[data-testid="column"]:nth-child(1)
 div.stButton > button {
-    background: linear-gradient(135deg,#6424c8,#873de8) !important;
+
+    background: linear-gradient(
+        145deg,
+        #c79cff,
+        #8b4de8
+    ) !important;
 }
 
 div[data-testid="stHorizontalBlock"]:nth-of-type(2)
 div[data-testid="column"]:nth-child(2)
 div.stButton > button {
-    background: linear-gradient(135deg,#ef233c,#d90429) !important;
+
+    background: linear-gradient(
+        145deg,
+        #ff9ea9,
+        #f16b7b
+    ) !important;
 }
 
 div[data-testid="stHorizontalBlock"]:nth-of-type(2)
 div[data-testid="column"]:nth-child(3)
 div.stButton > button {
-    background: linear-gradient(135deg,#ff7a00,#e85d04) !important;
+
+    background: linear-gradient(
+        145deg,
+        #ffb98e,
+        #ff915e
+    ) !important;
 }
 
-/* तिसरी row */
+/* =========================================================
+   ROW 3 COLORS
+   ========================================================= */
+
 div[data-testid="stHorizontalBlock"]:nth-of-type(3)
 div[data-testid="column"]:nth-child(1)
 div.stButton > button {
-    background: linear-gradient(135deg,#0099cc,#0077b6) !important;
+
+    background: linear-gradient(
+        145deg,
+        #8be2e4,
+        #41b9bd
+    ) !important;
 }
 
 div[data-testid="stHorizontalBlock"]:nth-of-type(3)
 div[data-testid="column"]:nth-child(2)
 div.stButton > button {
-    background: linear-gradient(135deg,#16a085,#138d75) !important;
+
+    background: linear-gradient(
+        145deg,
+        #8fb8ff,
+        #5f8ee8
+    ) !important;
 }
 
 div[data-testid="stHorizontalBlock"]:nth-of-type(3)
 div[data-testid="column"]:nth-child(3)
 div.stButton > button {
-    background: linear-gradient(135deg,#6c5ce7,#4834d4) !important;
+
+    background: linear-gradient(
+        145deg,
+        #b7a6ff,
+        #806ce5
+    ) !important;
 }
 
-/* Section title */
-.section-title {
-    font-size: 24px;
-    font-weight: 900;
-    color: #202738;
-    margin-top: 18px;
-    margin-bottom: 10px;
-}
+/* =========================================================
+   FORM DESIGN
+   ========================================================= */
 
-/* सूचना बॉक्स */
-.info-box {
-    background: #eef4ff;
-    border-left: 5px solid #3b82f6;
-    border-radius: 15px;
-    padding: 14px;
-    font-size: 15px;
-    margin-bottom: 15px;
-}
-
-/* Form */
 .stTextInput input,
 .stTextArea textarea {
-    border-radius: 12px !important;
-    border: 1px solid #d7dce5 !important;
+
+    border-radius: 14px !important;
+
+    border: 1px solid #d9dfe9 !important;
+
     font-size: 16px !important;
+
+    background: #ffffff !important;
 }
 
 /* Generate button */
-.generate-button button {
-    border-radius: 14px !important;
+.generate-btn button {
+
+    min-height: 55px !important;
+
+    border-radius: 15px !important;
+
+    font-size: 17px !important;
+
+    font-weight: 800 !important;
 }
 
-/* Document */
-.a4-container {
-    background: white;
+/* =========================================================
+   DOCUMENT BOX
+   ========================================================= */
+
+.document-box {
+
+    background: #ffffff;
+
+    border-radius: 18px;
+
+    padding: 22px;
+
+    margin-top: 18px;
+
+    box-shadow:
+        0 5px 20px rgba(0,0,0,0.10);
+
     color: #111827;
-    border-radius: 15px;
-    padding: 20px;
-    margin-top: 15px;
-    line-height: 1.8;
-    box-shadow: 0 3px 15px rgba(0,0,0,0.10);
+
+    font-size: 15px;
+
+    line-height: 1.9;
 }
 
-/* Mobile */
-@media (max-width: 600px) {
+/* =========================================================
+   INFO BOX
+   ========================================================= */
+
+.info-box {
+
+    background: #eef5ff;
+
+    border-left: 5px solid #4c8bf5;
+
+    border-radius: 15px;
+
+    padding: 15px;
+
+    margin: 15px 0;
+
+    color: #26344a;
+
+    font-size: 14px;
+
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media screen and (max-width: 600px) {
 
     .block-container {
-        padding-left: 8px !important;
-        padding-right: 8px !important;
+
+        padding-left: 6px !important;
+
+        padding-right: 6px !important;
+
+        padding-top: 8px !important;
+
     }
 
-    .mobile-header-title {
+    .app-header {
+
+        border-radius: 20px;
+
+        padding: 15px 8px;
+
+    }
+
+    .app-title {
+
+        font-size: 23px;
+
+    }
+
+    .app-tag {
+
+        font-size: 12px;
+
+        padding: 7px 12px;
+
+    }
+
+    .app-info {
+
+        font-size: 11px;
+
+    }
+
+    .service-title {
+
         font-size: 22px;
+
+        margin-left: 4px;
+
+    }
+
+    div[data-testid="column"] {
+
+        padding: 4px !important;
+
     }
 
     div.stButton > button {
-        min-height: 105px !important;
-        height: 105px !important;
-        font-size: 14px !important;
+
+        min-height: 150px !important;
+
+        height: 150px !important;
+
         border-radius: 20px !important;
+
+        font-size: 15px !important;
+
+        padding: 8px !important;
+
     }
+
+}
+
+/* अतिशय छोट्या स्क्रीनसाठी */
+@media screen and (max-width: 380px) {
+
+    div.stButton > button {
+
+        min-height: 130px !important;
+
+        height: 130px !important;
+
+        font-size: 13px !important;
+
+        border-radius: 17px !important;
+
+    }
+
 }
 
 </style>
@@ -256,20 +446,22 @@ if "messages" not in st.session_state:
 # =========================================================
 
 st.markdown("""
-<div class="mobile-header">
+<div class="app-header">
 
-    <div class="mobile-header-title">
-        ⚖️ RTI AI महा-सहाय्यक
+    <div class="app-title">
+        ⚖️ <span>RTI AI</span> महा-सहाय्यक
     </div>
 
-    <div class="tag">
+    <div class="app-tag">
         ⚡ घरबसल्या एका मिनिटात अर्ज तयार करा
     </div>
 
-    <div class="mobile-header-sub">
-        👤 सतीश अशोक प्रधान | 📱 ८६६८२३५३९५
+    <div class="app-info">
+        👤 सतीश अशोक प्रधान
+        &nbsp; | &nbsp;
+        📱 ८६६८२३५३९५
         <br>
-        छत्रपती संभाजीनगर
+        📍 छत्रपती संभाजीनगर
     </div>
 
 </div>
@@ -282,15 +474,14 @@ st.markdown("""
 
 if not st.session_state.is_logged_in:
 
-    st.markdown("""
-    <div class="section-title" style="text-align:center;">
-        🔐 सुरक्षित मोबाईल प्रवेश
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        '<div class="service-title">🔐 सुरक्षित मोबाईल प्रवेश</div>',
+        unsafe_allow_html=True
+    )
 
     st.markdown("""
     <div class="info-box">
-        📱 तुमचा १० अंकी मोबाईल नंबर टाकून ॲप सुरू करा.
+        📱 तुमचा १० अंकी मोबाईल नंबर टाका आणि ॲप सुरू करा.
     </div>
     """, unsafe_allow_html=True)
 
@@ -300,7 +491,10 @@ if not st.session_state.is_logged_in:
         max_chars=10
     )
 
-    if st.button("🚀 ॲप सुरू करा", use_container_width=True):
+    if st.button(
+        "🚀 ॲप सुरू करा",
+        use_container_width=True
+    ):
 
         if len(mobile) == 10 and mobile.isdigit():
 
@@ -311,91 +505,141 @@ if not st.session_state.is_logged_in:
             st.rerun()
 
         else:
-            st.error("कृपया अचूक १० अंकी मोबाईल नंबर टाका.")
+
+            st.error(
+                "कृपया अचूक १० अंकी मोबाईल नंबर टाका."
+            )
 
     st.stop()
 
 
 # =========================================================
-# HOME MENU
+# HOME SCREEN
 # =========================================================
 
 if st.session_state.active_module == "home":
 
     st.markdown("""
-    <div class="section-title">
+    <div class="service-title">
         📱 कायदेशीर सेवा निवडा
     </div>
     """, unsafe_allow_html=True)
 
-    # =========================
+    # =====================================================
     # ROW 1
-    # =========================
+    # =====================================================
 
-    c1, c2, c3 = st.columns(3)
+    col1, col2, col3 = st.columns(3)
 
-    with c1:
-        if st.button("📄\nजोडपत्र 'अ'", key="home_rti"):
+    with col1:
+
+        if st.button(
+            "📄\nजोडपत्र 'अ'\n\nमाहिती अधिकार अर्ज",
+            key="rti_button"
+        ):
+
             st.session_state.active_module = "rti"
             st.rerun()
 
-    with c2:
-        if st.button("⚖️\nप्रथम अपील", key="home_fa"):
+    with col2:
+
+        if st.button(
+            "⚖️\nप्रथम अपील\n\nकलम १९ अंतर्गत",
+            key="appeal_button"
+        ):
+
             st.session_state.active_module = "first_appeal"
             st.rerun()
 
-    with c3:
-        if st.button("🏛️\nमाहिती आयोग", key="home_comm"):
+    with col3:
+
+        if st.button(
+            "🏛️\nमाहिती आयोग\n\nराज्य माहिती आयोग",
+            key="commission_button"
+        ):
+
             st.session_state.active_module = "commission"
             st.rerun()
 
-    # =========================
+
+    # =====================================================
     # ROW 2
-    # =========================
+    # =====================================================
 
-    c4, c5, c6 = st.columns(3)
+    col4, col5, col6 = st.columns(3)
 
-    with c4:
-        if st.button("✨\nAI चॅट", key="home_ai"):
+    with col4:
+
+        if st.button(
+            "✨\nAI चॅट\n\nAI कायदेशीर सल्ला",
+            key="ai_button"
+        ):
+
             st.session_state.active_module = "ai_chat"
             st.rerun()
 
-    with c5:
-        if st.button("📜\nकोर्ट याचिका", key="home_court"):
+    with col5:
+
+        if st.button(
+            "📜\nकोर्ट याचिका\n\nयाचिका मसुदा तयार करा",
+            key="court_button"
+        ):
+
             st.session_state.active_module = "court"
             st.rerun()
 
-    with c6:
-        if st.button("📣\nशासकीय तक्रार", key="home_comp"):
+    with col6:
+
+        if st.button(
+            "📢\nशासकीय तक्रार\n\nशासकीय तक्रार अर्ज",
+            key="complaint_button"
+        ):
+
             st.session_state.active_module = "complaint"
             st.rerun()
 
-    # =========================
+
+    # =====================================================
     # ROW 3
-    # =========================
+    # =====================================================
 
-    c7, c8, c9 = st.columns(3)
+    col7, col8, col9 = st.columns(3)
 
-    with c7:
-        if st.button("✏️\nप्रतिज्ञापत्र", key="home_aff"):
+    with col7:
+
+        if st.button(
+            "📜\nप्रतिज्ञापत्र\n\nप्रतिज्ञापत्र तयार करा",
+            key="affidavit_button"
+        ):
+
             st.session_state.active_module = "affidavit"
             st.rerun()
 
-    with c8:
-        if st.button("🛒\nग्राहक मंच", key="home_cons"):
+    with col8:
+
+        if st.button(
+            "🛒\nग्राहक मंच\n\nग्राहक तक्रार अर्ज",
+            key="consumer_button"
+        ):
+
             st.session_state.active_module = "consumer"
             st.rerun()
 
-    with c9:
-        if st.button("📂\nदस्तऐवज / PDF", key="home_docs"):
+    with col9:
+
+        if st.button(
+            "📂\nदस्तऐवज / PDF\n\nदस्तऐवज वाचक",
+            key="documents_button"
+        ):
+
             st.session_state.active_module = "documents"
             st.rerun()
 
-    st.markdown("---")
 
     st.markdown("""
     <div class="info-box">
-        💡 <b>टीप:</b> वरील कोणतेही बटन निवडा आणि संबंधित अर्ज किंवा कायदेशीर कागदपत्र तयार करा.
+        🛡️ <b>सुरक्षित प्रवेश</b><br>
+        तुमचा डेटा फक्त तुमच्या मदतीसाठी वापरला जातो.
     </div>
     """, unsafe_allow_html=True)
 
@@ -406,19 +650,24 @@ if st.session_state.active_module == "home":
 
 else:
 
-    if st.button("🏠 मुख्य पृष्ठावर जा", use_container_width=True):
+    if st.button(
+        "🏠  मुख्य पृष्ठावर जा",
+        use_container_width=True
+    ):
+
         st.session_state.active_module = "home"
+
         st.rerun()
 
 
 # =========================================================
-# RTI
+# RTI APPLICATION
 # =========================================================
 
 if st.session_state.active_module == "rti":
 
     st.markdown(
-        '<div class="section-title">📄 जोडपत्र \'अ\' - माहिती अधिकार अर्ज</div>',
+        '<div class="service-title">📄 जोडपत्र \'अ\'</div>',
         unsafe_allow_html=True
     )
 
@@ -434,16 +683,19 @@ if st.session_state.active_module == "rti":
 
     details = st.text_area(
         "माहितीचा तपशील",
-        placeholder="मागायची माहिती येथे लिहा...",
-        height=180
+        height=200,
+        placeholder="मागायची माहिती लिहा..."
     )
 
-    if st.button("📝 मसुदा तयार करा", use_container_width=True):
+    if st.button(
+        "📝 अर्जाचा मसुदा तयार करा",
+        use_container_width=True
+    ):
 
         draft = f"""
-**माहिती अधिकाराचा अर्ज (जोडपत्र 'अ')**
+### माहिती अधिकाराचा अर्ज
 
-प्रति,  
+**प्रति,**  
 जन माहिती अधिकारी,  
 {dept}
 
@@ -452,13 +704,16 @@ if st.session_state.active_module == "rti":
 **माहितीचा तपशील:**  
 {details}
 
-**अर्जदार:** सतीश अशोक प्रधान  
-**ठिकाण:** छत्रपती संभाजीनगर  
+**अर्जदार:**  
+सतीश अशोक प्रधान
+
+**ठिकाण:** छत्रपती संभाजीनगर
+
 **दिनांक:** {datetime.date.today().strftime('%d/%m/%Y')}
 """
 
         st.markdown(
-            f'<div class="a4-container">{draft}</div>',
+            f'<div class="document-box">{draft}</div>',
             unsafe_allow_html=True
         )
 
@@ -470,78 +725,84 @@ if st.session_state.active_module == "rti":
 elif st.session_state.active_module == "first_appeal":
 
     st.markdown(
-        '<div class="section-title">⚖️ प्रथम अपील अर्ज</div>',
+        '<div class="service-title">⚖️ प्रथम अपील</div>',
         unsafe_allow_html=True
     )
 
-    fa_dept = st.text_input(
+    officer = st.text_input(
         "प्रथम अपिलीय अधिकारी व पत्ता"
     )
 
     reason = st.text_area(
         "अपिलाचे कारण",
-        height=180
+        height=220
     )
 
-    if st.button("📝 प्रथम अपील तयार करा", use_container_width=True):
+    if st.button(
+        "📝 प्रथम अपील तयार करा",
+        use_container_width=True
+    ):
 
         draft = f"""
-**प्रथम अपील अर्ज**
+### प्रथम अपील अर्ज
 
-प्रति,  
-{fa_dept}
+**प्रति:**  
+{officer}
 
 **अपिलाचे कारण:**  
 {reason}
 
 **अपीलार्थी:**  
-सतीश अशोक प्रधान  
-छत्रपती संभाजीनगर
+सतीश अशोक प्रधान
 
-**दिनांक:** {datetime.date.today().strftime('%d/%m/%Y')}
-"""
-
-        st.markdown(
-            f'<div class="a4-container">{draft}</div>',
-            unsafe_allow_html=True
-        )
-
-
-# =========================================================
-# COMMISSION
-# =========================================================
-
-elif st.session_state.active_module == "commission":
-
-    st.markdown(
-        '<div class="section-title">🏛️ माहिती आयोग</div>',
-        unsafe_allow_html=True
-    )
-
-    comm_details = st.text_area(
-        "आयोगासाठी तक्रार / द्वितीय अपील तपशील",
-        height=220
-    )
-
-    if st.button("📝 आयोग अर्ज तयार करा", use_container_width=True):
-
-        draft = f"""
-**द्वितीय अपील / तक्रार**
-
-प्रति,  
-मा. राज्य माहिती आयोग
-
-**तपशील:**  
-{comm_details}
-
-**अर्जदार:** सतीश अशोक प्रधान  
 **ठिकाण:** छत्रपती संभाजीनगर
 
 **दिनांक:** {datetime.date.today().strftime('%d/%m/%Y')}
 """
 
         st.markdown(
-            f'<div class="a4-container">{draft}</div>',
+            f'<div class="document-box">{draft}</div>',
+            unsafe_allow_html=True
+        )
+
+
+# =========================================================
+# INFORMATION COMMISSION
+# =========================================================
+
+elif st.session_state.active_module == "commission":
+
+    st.markdown(
+        '<div class="service-title">🏛️ माहिती आयोग</div>',
+        unsafe_allow_html=True
+    )
+
+    details = st.text_area(
+        "द्वितीय अपील / तक्रारीचा तपशील",
+        height=250
+    )
+
+    if st.button(
+        "📝 आयोग अर्ज तयार करा",
+        use_container_width=True
+    ):
+
+        draft = f"""
+### द्वितीय अपील / तक्रार
+
+**तपशील:**  
+{details}
+
+**अर्जदार:**  
+सतीश अशोक प्रधान
+
+**ठिकाण:** छत्रपती संभाजीनगर
+
+**दिनांक:** {datetime.date.today().strftime('%d/%m/%Y')}
+"""
+
+        st.markdown(
+            f'<div class="document-box">{draft}</div>',
             unsafe_allow_html=True
         )
 
@@ -553,22 +814,23 @@ elif st.session_state.active_module == "commission":
 elif st.session_state.active_module == "ai_chat":
 
     st.markdown(
-        '<div class="section-title">✨ AI कायदेशीर सल्लागार</div>',
+        '<div class="service-title">✨ AI कायदेशीर सल्लागार</div>',
         unsafe_allow_html=True
     )
 
     st.markdown("""
     <div class="info-box">
-        ✨ RTI, प्रथम अपील, तक्रार किंवा कायदेशीर प्रक्रियेबद्दल प्रश्न विचारा.
-        <br>
-        📎 पुढे कागदपत्र / फोटो जोडण्याची सुविधा देखील जोडता येईल.
+        ✨ RTI, अपील, तक्रार, कोर्ट याचिका किंवा इतर कायदेशीर प्रश्न विचारा.
     </div>
     """, unsafe_allow_html=True)
 
     for message in st.session_state.messages:
 
         with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+
+            st.markdown(
+                message["content"]
+            )
 
     prompt = st.chat_input(
         "तुमचा प्रश्न येथे लिहा..."
@@ -582,50 +844,53 @@ elif st.session_state.active_module == "ai_chat":
         })
 
         with st.chat_message("user"):
+
             st.markdown(prompt)
 
-        # सध्या basic response
         if (
-            "आरटीआय" in prompt
-            or "RTI" in prompt.upper()
-            or "माहिती" in prompt
+            "RTI" in prompt.upper()
+            or "आरटीआय" in prompt
+            or "माहिती अधिकार" in prompt
         ):
 
-            response = """
-माहिती अधिकारासंबंधी प्रश्नासाठी प्रथम जोडपत्र 'अ' वापरून अर्ज तयार करता येईल.
-तुमचा प्रश्न अधिक स्पष्ट दिल्यास संबंधित अर्जाचा मसुदा तयार करता येईल.
+            answer = """
+माहिती अधिकारासंबंधी तुमचा प्रश्न नोंदवला आहे.
+जोडपत्र 'अ' विभागातून माहिती अधिकाराचा अर्ज तयार करता येईल.
 """
 
         elif "अपील" in prompt:
 
-            response = """
-माहिती न मिळाल्यास किंवा अपूर्ण माहिती मिळाल्यास प्रथम अपील प्रक्रियेचा विचार करता येतो.
-तुमच्याकडे असलेला RTI अर्ज आणि उत्तर दिल्यास त्यावर आधारित मसुदा तयार करता येईल.
+            answer = """
+तुमच्या प्रकरणासाठी प्रथम अपील किंवा पुढील अपील प्रक्रियेचा विचार करता येईल.
+तुमच्याकडे असलेला अर्ज आणि मिळालेले उत्तर दिल्यास त्यावर आधारित मसुदा तयार करता येईल.
 """
 
         elif "तक्रार" in prompt:
 
-            response = """
-तक्रारीसाठी संबंधित कार्यालय, विषय, घटना आणि मागणी स्पष्टपणे लिहा.
-त्यावर आधारित शासकीय तक्रार अर्ज तयार करता येईल.
+            answer = """
+तक्रारीसाठी संबंधित अधिकारी, घटना, पुरावे आणि तुमची मागणी स्पष्टपणे द्या.
+शासकीय तक्रार विभागातून मसुदा तयार करता येईल.
 """
 
         else:
 
-            response = f"""
-सतीशजी, तुमचा प्रश्न:
+            answer = f"""
+सतीशजी,
+
+तुमचा प्रश्न:
 
 **{prompt}**
 
-या विषयासाठी संबंधित विभाग निवडा किंवा अधिक तपशील द्या.
+कृपया अधिक तपशील दिल्यास त्यानुसार योग्य अर्ज किंवा कायदेशीर मसुदा तयार करता येईल.
 """
 
         with st.chat_message("assistant"):
-            st.markdown(response)
+
+            st.markdown(answer)
 
         st.session_state.messages.append({
             "role": "assistant",
-            "content": response
+            "content": answer
         })
 
 
@@ -636,7 +901,7 @@ elif st.session_state.active_module == "ai_chat":
 elif st.session_state.active_module == "court":
 
     st.markdown(
-        '<div class="section-title">📜 कोर्ट याचिका मसुदा</div>',
+        '<div class="service-title">📜 कोर्ट याचिका</div>',
         unsafe_allow_html=True
     )
 
@@ -645,33 +910,37 @@ elif st.session_state.active_module == "court":
         height=250
     )
 
-    relief = st.text_area(
+    demand = st.text_area(
         "मागणी / दिलासा",
-        height=150
+        height=180
     )
 
-    if st.button("📝 याचिका मसुदा तयार करा", use_container_width=True):
+    if st.button(
+        "📝 याचिका मसुदा तयार करा",
+        use_container_width=True
+    ):
 
         draft = f"""
-**कोर्ट याचिका — प्राथमिक मसुदा**
+### कोर्ट याचिका — प्राथमिक मसुदा
 
 **प्रकरणाची हकीकत:**  
 {facts}
 
 **मागणी / दिलासा:**  
-{relief}
+{demand}
 
 **याचिकाकर्ता:**  
 सतीश अशोक प्रधान
 
-**ठिकाण:** छत्रपती संभाजीनगर  
+**ठिकाण:** छत्रपती संभाजीनगर
+
 **दिनांक:** {datetime.date.today().strftime('%d/%m/%Y')}
 
-*टीप: हा प्राथमिक मसुदा आहे. दाखल करण्यापूर्वी संबंधित कायदेशीर तज्ज्ञाकडून तपासणी करावी.*
+> हा प्राथमिक मसुदा आहे. दाखल करण्यापूर्वी संबंधित कायदेशीर तज्ज्ञाकडून तपासणी करावी.
 """
 
         st.markdown(
-            f'<div class="a4-container">{draft}</div>',
+            f'<div class="document-box">{draft}</div>',
             unsafe_allow_html=True
         )
 
@@ -683,21 +952,21 @@ elif st.session_state.active_module == "court":
 elif st.session_state.active_module == "complaint":
 
     st.markdown(
-        '<div class="section-title">📣 शासकीय तक्रार अर्ज</div>',
+        '<div class="service-title">📢 शासकीय तक्रार</div>',
         unsafe_allow_html=True
     )
 
-    authority = st.text_input(
-        "तक्रार कोणाकडे करायची आहे?"
+    officer = st.text_input(
+        "तक्रार कोणाकडे करायची?"
     )
 
     subject = st.text_input(
         "तक्रारीचा विषय"
     )
 
-    comp = st.text_area(
-        "तक्रारीचा संपूर्ण तपशील",
-        height=250
+    complaint = st.text_area(
+        "तक्रारीचा तपशील",
+        height=230
     )
 
     demand = st.text_area(
@@ -705,31 +974,36 @@ elif st.session_state.active_module == "complaint":
         height=150
     )
 
-    if st.button("📝 तक्रार तयार करा", use_container_width=True):
+    if st.button(
+        "📝 तक्रार तयार करा",
+        use_container_width=True
+    ):
 
         draft = f"""
-**शासकीय तक्रार अर्ज**
+### शासकीय तक्रार अर्ज
 
-प्रति,  
-{authority}
+**प्रति:**  
+{officer}
 
-**विषय:** {subject}
+**विषय:**  
+{subject}
 
 **तक्रारीचा तपशील:**  
-{comp}
+{complaint}
 
 **मागणी:**  
 {demand}
 
 **तक्रारदार:**  
-सतीश अशोक प्रधान  
-छत्रपती संभाजीनगर
+सतीश अशोक प्रधान
+
+**ठिकाण:** छत्रपती संभाजीनगर
 
 **दिनांक:** {datetime.date.today().strftime('%d/%m/%Y')}
 """
 
         st.markdown(
-            f'<div class="a4-container">{draft}</div>',
+            f'<div class="document-box">{draft}</div>',
             unsafe_allow_html=True
         )
 
@@ -741,24 +1015,27 @@ elif st.session_state.active_module == "complaint":
 elif st.session_state.active_module == "affidavit":
 
     st.markdown(
-        '<div class="section-title">✏️ प्रतिज्ञापत्र</div>',
+        '<div class="service-title">📜 प्रतिज्ञापत्र</div>',
         unsafe_allow_html=True
     )
 
-    aff = st.text_area(
+    declaration = st.text_area(
         "प्रतिज्ञापत्रातील घोषणा / मुद्दे",
         height=250
     )
 
-    if st.button("📝 प्रतिज्ञापत्र तयार करा", use_container_width=True):
+    if st.button(
+        "📝 प्रतिज्ञापत्र तयार करा",
+        use_container_width=True
+    ):
 
         draft = f"""
-**प्रतिज्ञापत्र**
+### प्रतिज्ञापत्र
 
-मी, सतीश अशोक प्रधान, छत्रपती संभाजीनगर,
+मी, **सतीश अशोक प्रधान**, छत्रपती संभाजीनगर,
 खालीलप्रमाणे घोषित करतो:
 
-{aff}
+{declaration}
 
 वरील माहिती माझ्या माहितीनुसार सत्य आहे.
 
@@ -769,7 +1046,7 @@ elif st.session_state.active_module == "affidavit":
 """
 
         st.markdown(
-            f'<div class="a4-container">{draft}</div>',
+            f'<div class="document-box">{draft}</div>',
             unsafe_allow_html=True
         )
 
@@ -781,16 +1058,16 @@ elif st.session_state.active_module == "affidavit":
 elif st.session_state.active_module == "consumer":
 
     st.markdown(
-        '<div class="section-title">🛒 ग्राहक मंच तक्रार</div>',
+        '<div class="service-title">🛒 ग्राहक मंच</div>',
         unsafe_allow_html=True
     )
 
-    company = st.text_input(
+    opposite_party = st.text_input(
         "विरोधातील व्यक्ती / कंपनी / सेवा प्रदाता"
     )
 
-    cons = st.text_area(
-        "फसवणूक / सेवेत त्रुटी / तक्रारीचा तपशील",
+    complaint = st.text_area(
+        "तक्रारीचा तपशील",
         height=230
     )
 
@@ -798,16 +1075,19 @@ elif st.session_state.active_module == "consumer":
         "मागितलेली भरपाई"
     )
 
-    if st.button("📝 ग्राहक मंच अर्ज तयार करा", use_container_width=True):
+    if st.button(
+        "📝 ग्राहक मंच अर्ज तयार करा",
+        use_container_width=True
+    ):
 
         draft = f"""
-**ग्राहक तक्रार अर्ज — प्राथमिक मसुदा**
+### ग्राहक मंच तक्रार — प्राथमिक मसुदा
 
 **विरोधातील पक्ष:**  
-{company}
+{opposite_party}
 
 **तक्रारीचा तपशील:**  
-{cons}
+{complaint}
 
 **मागितलेली भरपाई:**  
 {compensation}
@@ -815,50 +1095,57 @@ elif st.session_state.active_module == "consumer":
 **तक्रारदार:**  
 सतीश अशोक प्रधान
 
-**ठिकाण:** छत्रपती संभाजीनगर  
+**ठिकाण:** छत्रपती संभाजीनगर
+
 **दिनांक:** {datetime.date.today().strftime('%d/%m/%Y')}
 """
 
         st.markdown(
-            f'<div class="a4-container">{draft}</div>',
+            f'<div class="document-box">{draft}</div>',
             unsafe_allow_html=True
         )
 
 
 # =========================================================
-# DOCUMENTS / PDF
+# DOCUMENT / PDF
 # =========================================================
 
 elif st.session_state.active_module == "documents":
 
     st.markdown(
-        '<div class="section-title">📂 दस्तऐवज / PDF</div>',
+        '<div class="service-title">📂 दस्तऐवज / PDF</div>',
         unsafe_allow_html=True
     )
 
     st.markdown("""
     <div class="info-box">
-        📄 या विभागात पुढे तयार केलेले अर्ज,
-        PDF, फोटो आणि इतर कागदपत्रे व्यवस्थापित करता येतील.
+        📄 PDF, फोटो किंवा इतर कागदपत्रे येथे निवडता येतील.
+        पुढील टप्प्यात AI कडून त्यातील मजकूर वाचून अर्ज तयार करण्याची सुविधा जोडता येईल.
     </div>
     """, unsafe_allow_html=True)
 
-    uploaded = st.file_uploader(
+    files = st.file_uploader(
         "📎 कागदपत्र निवडा",
-        type=["pdf", "jpg", "jpeg", "png", "docx"],
+        type=[
+            "pdf",
+            "jpg",
+            "jpeg",
+            "png",
+            "docx"
+        ],
         accept_multiple_files=True
     )
 
-    if uploaded:
+    if files:
 
         st.success(
-            f"{len(uploaded)} कागदपत्रे निवडली आहेत."
+            f"✅ {len(files)} कागदपत्रे निवडली."
         )
 
-        for file in uploaded:
+        for file in files:
 
             st.write(
-                f"📄 {file.name}"
+                "📄 " + file.name
             )
 
 
@@ -868,14 +1155,20 @@ elif st.session_state.active_module == "documents":
 
 st.markdown("""
 <br>
+
 <div style="
 text-align:center;
-font-size:11px;
 color:#777;
-padding:15px;
+font-size:11px;
+padding:18px;
 ">
+
 ⚖️ RTI AI महा-सहाय्यक
+
 <br>
+
 सतीश अशोक प्रधान | छत्रपती संभाजीनगर
+
 </div>
+
 """, unsafe_allow_html=True)
