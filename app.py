@@ -7,7 +7,7 @@ strlit.set_page_config(
     layout="centered"
 )
 
-# मोबाईलवरही बटने एकाच ओळीत (Grid) सुंदर दिसण्यासाठी आधुनिक CSS
+# मोबाईलच्या ॲप्ससारखी सुंदर रंगीबेरंगी आणि चमचमीत बटणांसाठी CSS डिझाइन
 strlit.markdown("""
     <style>
     .stApp {
@@ -38,21 +38,48 @@ strlit.markdown("""
         border: 1px dashed #ffa726;
         margin-bottom: 10px;
     }
-    /* Streamlit चे बटन्स आकर्षक करण्यासाठी */
-    .stButton>button {
-        width: 100%;
-        border-radius: 12px;
+    
+    /* मोबाईलच्या होमस्क्रीनसारखी ४x४ ग्रिड रचना व चमचमीत रंग */
+    .app-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    .app-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 5px;
+        border-radius: 18px;
+        color: white;
+        text-align: center;
         font-weight: bold;
-        padding: 10px 5px;
-        font-size: 14px;
-        border: none;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        transition: 0.2s;
-    }
-    .stButton>button:hover {
-        transform: translateY(-2px);
+        font-size: 12px;
+        cursor: pointer;
         box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        transition: 0.2s;
+        text-decoration: none;
+        border: none;
+        width: 100%;
     }
+    .app-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        color: white;
+    }
+    
+    /* प्रत्येक बटनासाठी वेगळा रंगीबेरंगी आणि गोल्डन लुक */
+    .btn-rti { background: linear-gradient(135deg, #00b09b, #96c93d); }
+    .btn-appeal { background: linear-gradient(135deg, #ff9966, #ff5e62); }
+    .btn-comm { background: linear-gradient(135deg, #232526, #414345); border: 1px solid #ffd700; }
+    .btn-ai { background: linear-gradient(135deg, #4e54c8, #8f94fb); }
+    .btn-court { background: linear-gradient(135deg, #7f00ff, #e100ff); }
+    .btn-comp { background: linear-gradient(135deg, #cb356b, #bd3f32); }
+    .btn-aff { background: linear-gradient(135deg, #f2994a, #f2c94c); }
+    .btn-cons { background: linear-gradient(135deg, #00c6ff, #0072ff); }
+
     .a4-container {
         background-color: #ffffff;
         border: 2px dashed #1e3c72;
@@ -96,28 +123,31 @@ else:
     if "active_module" not in strlit.session_state:
         strlit.session_state.active_module = "rti"
 
-    strlit.markdown("### 🎛️ सेवा निवडा:")
+    strlit.markdown("### 🎛️ सेवा निवडा (मोबाईल डिझाइन):")
 
-    # बटने व्यवस्थित दिसण्यासाठी कॉलम रचना (मोबाईल फ्रेंडली)
-    row1_col1, row1_col2, row1_col3, row1_col4 = strlit.columns(4)
-    with row1_col1:
-        if strlit.button("📄 जोडपत्र 'अ'"): strlit.session_state.active_module = "rti"
-    with row1_col2:
-        if strlit.button("⚖️ प्रथम अपील"): strlit.session_state.active_module = "first_appeal"
-    with row1_col3:
-        if strlit.button("🏛️ माहिती आयोग"): strlit.session_state.active_module = "commission"
-    with row1_col4:
-        if strlit.button("✨ AI चॅट"): strlit.session_state.active_module = "ai_chat"
+    # ==============================================================================
+    # मोबाईलच्या होमस्क्रीनसारखी चमचमीत रंगीबेरंगी बटने (वर ४, खाली ४)
+    # ==============================================================================
+    
+    col1, col2, col3, col4 = strlit.columns(4)
+    with col1:
+        if strlit.button("📄\nजोडपत्र 'अ'"): strlit.session_state.active_module = "rti"
+    with col2:
+        if strlit.button("⚖️\nप्रथम अपील"): strlit.session_state.active_module = "first_appeal"
+    with col3:
+        if strlit.button("🏛️\nमाहिती आयोग"): strlit.session_state.active_module = "commission"
+    with col4:
+        if strlit.button("✨\nAI चॅट"): strlit.session_state.active_module = "ai_chat"
 
-    row2_col1, row2_col2, row2_col3, row2_col4 = strlit.columns(4)
-    with row2_col1:
-        if strlit.button("📜 कोर्ट याचिका"): strlit.session_state.active_module = "court"
-    with row2_col2:
-        if strlit.button("📣 शासकीय तक्रार"): strlit.session_state.active_module = "complaint"
-    with row2_col3:
-        if strlit.button("✏️ प्रतिज्ञापत्र"): strlit.session_state.active_module = "affidavit"
-    with row2_col4:
-        if strlit.button("🛒 ग्राहक मंच"): strlit.session_state.active_module = "consumer"
+    col5, col6, col7, col8 = strlit.columns(4)
+    with col5:
+        if strlit.button("📜\nकोर्ट याचिका"): strlit.session_state.active_module = "court"
+    with col6:
+        if strlit.button("📣\nशासकीय तक्रार"): strlit.session_state.active_module = "complaint"
+    with col7:
+        if strlit.button("✏️\nप्रतिज्ञापत्र"): strlit.session_state.active_module = "affidavit"
+    with col8:
+        if strlit.button("🛒\nग्राहक मंच"): strlit.session_state.active_module = "consumer"
 
     strlit.write("---")
 
@@ -142,29 +172,25 @@ else:
         strlit.subheader("✨ आकांक्षा AI कायदेशीर सल्लागार (चॅट बॉट)")
         strlit.info("💡 इथे तुम्ही RTI, कायदे, किंवा कोणत्याही शासकीय प्रक्रियेबद्दल प्रश्न विचारू शकता.")
         
-        # चॅट हिस्ट्री जतन करण्यासाठी
         if "messages" not in strlit.session_state:
             strlit.session_state.messages = []
 
-        # जुने मेसेज दाखवणे
         for message in strlit.session_state.messages:
             with strlit.chat_message(message["role"]):
                 strlit.markdown(message["content"])
 
-        # नवीन प्रश्न विचारण्यासाठी इनपुट बॉक्स
         if prompt := strlit.chat_input("तुमचा कायदेशीर किंवा RTI बद्दलचा प्रश्न येथे विचारပါ။"):
             strlit.session_state.messages.append({"role": "user", "content": prompt})
             with strlit.chat_message("user"):
                 strlit.markdown(prompt)
 
-            # AI चे अचूक उत्तर तयार करणे
             with strlit.chat_message("assistant"):
                 if "आरटीआय" in prompt or "rti" in prompt.lower() or "माहिती" in prompt:
-                    ai_response = "माहिती अधिकार कायदा २००५ च्या कलमानुसार आपण कोणत्याही शासकीय विभागाकडून नियमानुसार माहिती मागू शकता. यासाठी प्रथम 'जोडपत्र अ' मसुदा वापरून अर्ज दाखल करावा."
+                    ai_response = "माहिती अधिकार कायदा २००५ कलमानुसार आपण कोणत्याही शासकीय विभागाकडून नियमानुसार माहिती मागू शकता. प्रथम 'जोडपत्र अ' वापरून अर्ज दाखल करावा."
                 elif "अपील" in prompt:
-                    ai_response = "जर ३० दिवसांत माहिती मिळाली नाही किंवा अपूर्ण मिळाली, तर आपण संबंधित विभागाच्या प्रथम अपिलीय अधिकारी यांच्याकडे 'प्रथम अपील' दाखल करू शकता."
+                    ai_response = "जर ३० दिवसांत माहिती मिळाली नाही, तर संबंधित अपिलीय अधिकारी यांच्याकडे 'प्रथम अपील' दाखल करू शकता."
                 else:
-                    ai_response = f"सतीशजी, तुमच्या '{prompt}' या प्रश्नासंदर्भात योग्य कायदेशीर प्रक्रिया पार पाडण्यासाठी तुम्ही संबंधित अर्ज किंवा मसुदा वरील पर्यायांमधून निवडू शकता."
+                    ai_response = f"सतीशजी, तुमच्या '{prompt}' या प्रश्नासंदर्भात योग्य कायदेशीर प्रक्रिया पार पाडण्यासाठी वरील योग्य मसुदा निवडा."
                 
                 strlit.markdown(ai_response)
                 strlit.session_state.messages.append({"role": "assistant", "content": ai_response})
