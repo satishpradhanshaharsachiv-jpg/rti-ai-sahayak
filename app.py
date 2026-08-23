@@ -1,6 +1,8 @@
 import streamlit as st
 from PIL import Image
 import google.generativeai as genai
+from gtts import gTTS
+import io
 
 # १. पेज कॉन्फिगरेशन
 st.set_page_config(page_title="आकांक्षा RTI AI", layout="wide")
@@ -132,7 +134,7 @@ full_app_html = """
     <div class="header-title">✨ आकांक्षा इंटरप्राईजेस RTI AI ॲप कायदेशीर सहाय्य ✨</div>
     <div class="header-subtitle">⚡ घरबसल्या RTI अर्ज व शासकीय तक्रार एका सेकंदात A4 साईज मध्ये मोफत मिळवा ⚡</div>
     <div class="header-divider"></div>
-    <div class="header-footer">👤 सतीश अशोक प्रधान | 📱 मो. ८६६८२३५३९५</div>
+    <div class="header-footer">👤 सतीश अशोक प्रधान | 📱 मो. ८६६8235395</div>
 </div>
 
 <div class="btn-container">
@@ -269,9 +271,9 @@ elif current_form == "second_appeal":
         st.text_area("", st.session_state.draft_c_text, height=220)
         st.download_button("📥 जोडपत्र 'क' (A4 PDF) डाऊनलोड करा", data=st.session_state.pdf_c, file_name="Jodpatra_C_Second_Appeal.html", mime="text/html")
 
-# (४) AI चॅट (नवीन अपडेटेड मॉडेल्स + ऑटो फॉलबॅक)
+# (४) AI चॅट (ऑटोमॅटिक मॉडेल सिलेक्शन + स्पिकर ऑडिओ प्लेअर फिचर)
 elif current_form == "ai_chat":
-    st.info("✨ आकांक्षा AI चॅट असिस्टंट - RTI, कायदेशीर व शासकीय कामांसाठी मोफत AI मदत")
+    st.info("✨ आकांक्षा AI चॅट असिस्टंट - RTI, कायदेशीर व शासकीय कामांसाठी मोफत AI मदत व ऑडिओ ऐका")
 
     # १. Secrets मधून API Key घेणे
     GEMINI_API_KEY = st.secrets.get("GEMINI_API_KEY", "")
@@ -292,12 +294,14 @@ elif current_form == "ai_chat":
         image_data = Image.open(uploaded_file)
         st.image(image_data, caption="अपलोड केलेले कागदपत्र", width=250)
 
-    # ४. जुने संभाषण दाखवणे
+    # ४. जुने संभाषण आणि ऑडिओ दाखवणे
     for message in st.session_state.chat_history:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
+            if message["role"] == "assistant" and "audio_data" in message:
+                st.audio(message["audio_data"], format="audio/mp3")
 
-    # ५. प्रश्न उत्तर जनरेशन (नवीन सुसंगत मॉडेल्ससह)
+    # ५. प्रश्न उत्तर जनरेशन व ऑडिओ तयार करणे
     if user_input := st.chat_input("तुमचा प्रश्न किंवा अडचण येथे लिहा..."):
         st.chat_message("user").markdown(user_input)
         st.session_state.chat_history.append({"role": "user", "content": user_input})
@@ -309,8 +313,7 @@ elif current_form == "ai_chat":
         """
 
         with st.chat_message("assistant"):
-            with st.spinner("AI विचार करत आहे व उत्तर तयार करत आहे..."):
-                # Google ने सुचवलेली नवीन समर्थित मॉडेल्स प्राधान्यक्रमाने
+            with st.spinner("AI विचार करत आहे व स्पष्ट मराठी आवाज तयार करत आहे..."):
                 auto_models = [
                     "gemini-3.5-flash-lite",
                     "gemini-3.5-flash",
@@ -339,7 +342,23 @@ elif current_form == "ai_chat":
 
                 if response_text:
                     st.markdown(response_text)
-                    st.session_state.chat_history.append({"role": "assistant", "content": response_text})
+                    
+                    # 🔊 ऑडिओ (Text-to-Speech) तयार करणे
+                    try:
+                        tts = gTTS(text=response_text, lang='mr', slow=False)
+                        audio_fp = io.BytesIO()
+                        tts.write_to_fp(audio_fp)
+                        audio_bytes = audio_fp.getvalue()
+                        
+                        st.audio(audio_bytes, format="audio/mp3")
+                        
+                        st.session_state.chat_history.append({
+                            "role": "assistant", 
+                            "content": response_text,
+                            "audio_data": audio_bytes
+                        })
+                    except Exception as tts_err:
+                        st.session_state.chat_history.append({"role": "assistant", "content": response_text})
                 else:
                     st.error(f"❌ API एरर: {last_error}")
 
@@ -364,7 +383,7 @@ elif current_form == "court":
             <strong>विषय:</strong> कायदेशीर दाव्याचा / याचिकेचा प्राथमिक मसुदा व तथ्ये.<br><br>
             <strong>प्रकरणाची पार्श्वभूमी व मुख्य मुद्दे:</strong><br>{matter}<br><br>
             <strong>मागणी / प्रार्थना (Relief Claimed):</strong><br>
-            १. वरील तथ्यांच्या आधारे वादीस योग्य तो कायदेशीर न्याय व भरपाई देण्यात यावी.<br>
+            १. वरील तथ्यांच्या आधारे वादीस योग्य то कायदेशीर न्याय व भरपाई देण्यात यावी.<br>
             २. प्रतिवादीस तात्काळ समज पत्र (Notice) जारी करण्यात यावे.
             """
             pdf_code = create_official_a4_pdf("कोर्ट याचिका मसुदा", "कायदेशीर मसुदा नमुना", f"समक्ष: {court_type}", body, petitioner, address, mobile)
@@ -420,7 +439,7 @@ elif current_form == "rti_portal":
 elif current_form == "consumer":
     st.info("🛒 ग्राहक मंच (Consumer Commission) संपूर्ण मार्गदर्शन व अर्ज मसुदा")
     st.markdown("""
-    **📌 प्राथमिक तयारी व कोर्ट अधिकार क्षेत्र:**
+    <strong>📌 प्राथमिक तयारी व कोर्ट अधिकार क्षेत्र:</strong>
     * **जिल्हा आयोग:** ₹१ कोटी रुपयांपर्यंतचे दावे.
     * **राज्य आयोग:** ₹१ कोटी ते ₹१० कोटी रुपयांपर्यंतचे दावे.
     * **राष्ट्रीय आयोग:** ₹१० कोटींपेक्षा जास्त रक्कमेचे दावे.
