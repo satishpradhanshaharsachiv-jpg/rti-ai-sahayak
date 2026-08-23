@@ -462,3 +462,15 @@ elif current_form == "consumer":
         st.subheader("📋 मसुदा पाहणी:")
         st.text_area("", st.session_state.draft_cons_text, height=220)
         st.download_button("📥 ग्राहक मंच अर्ज (A4 PDF) डाऊनलोड करा", data=st.session_state.pdf_cons, file_name="Consumer_Complaint.html", mime="text/html")
+import streamlit as st
+
+# हेडर, फुटर आणि मेनू लपवण्यासाठी CSS
+hide_menu_style = """
+        <style>
+        #MainMenu {visibility: hidden;}
+        header {visibility: hidden;}
+        footer {visibility: hidden;}
+        div[data-testid="stToolbar"] {visibility: hidden;}
+        </style>
+        """
+st.markdown(hide_menu_style, unsafe_allow_html=True)
