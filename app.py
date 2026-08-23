@@ -474,3 +474,15 @@ hide_menu_style = """
         </style>
         """
 st.markdown(hide_menu_style, unsafe_allow_html=True)
+st.markdown("---")
+st.markdown("### 📢 हे ॲप तुमच्या मित्रांना शेअर करा:")
+
+app_link = "https://rti-ai-app-eydmnrwsmhvwhmryv7nn4v.streamlit.app/?v=3"
+
+col1, col2, col3 = st.columns(3)
+with col1:
+    st.markdown(f'<a href="https://api.whatsapp.com/send?text=घरबसल्या RTI अर्ज व शासकीय तक्रारीसाठी हे मोफत AI ॲप वापरा: {app_link}" target="_blank"><button style="background-color:#25D366; color:white; border:none; padding:10px; border-radius:8px; width:100%; font-weight:bold;">💬 WhatsApp</button></a>', unsafe_allow_html=True)
+with col2:
+    st.markdown(f'<a href="https://www.facebook.com/sharer/sharer.php?u={app_link}" target="_blank"><button style="background-color:#1877F2; color:white; border:none; padding:10px; border-radius:8px; width:100%; font-weight:bold;">📘 Facebook</button></a>', unsafe_allow_html=True)
+with col3:
+    st.markdown(f'<a href="https://t.me/share/url?url={app_link}&text=RTI व कायदेशीर सहाय्य AI ॲप" target="_blank"><button style="background-color:#0088cc; color:white; border:none; padding:10px; border-radius:8px; width:100%; font-weight:bold;">✈️ Telegram</button></a>', unsafe_allow_html=True)
