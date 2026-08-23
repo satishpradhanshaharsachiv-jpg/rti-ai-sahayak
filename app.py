@@ -7,11 +7,21 @@ import io
 # १. पेज कॉन्फिगरेशन
 st.set_page_config(page_title="आकांक्षा RTI AI", layout="wide")
 
-# २. निवडलेला फॉर्म ट्रॅक करणे
+# २. स्ट्रीमलिट टूलबार लपवण्यासाठी CSS (ब्राउझरचा हेडर चालू राहील)
+hide_menu_style = """
+        <style>
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        div[data-testid="stToolbar"] {visibility: hidden;}
+        </style>
+        """
+st.markdown(hide_menu_style, unsafe_allow_html=True)
+
+# ३. निवडलेला फॉर्म ट्रॅक करणे
 query_params = st.query_params
 current_form = query_params.get("form", "jodpatra_a")
 
-# ३. शासकीय राजपत्राच्या हुबेहूब A4 नमुन्यात PDF/प्रिंट तयार करणारे फंक्शन
+# ४. शासकीय राजपत्राच्या हुबेहूब A4 नमुन्यात PDF/प्रिंट तयार करणारे फंक्शन
 def create_official_a4_pdf(title_header, rule_text, main_title, body_content, applicant_name, applicant_address, applicant_mobile):
     html_code = f"""
     <!DOCTYPE html>
@@ -82,7 +92,7 @@ def create_official_a4_pdf(title_header, rule_text, main_title, body_content, ap
     """
     return html_code
 
-# ४. ३D डिझाईन आणि रंगांसाठी CSS
+# ५. ३D डिझाईन आणि रंगांसाठी CSS
 st.markdown("""
 <style>
 .header-card {
@@ -127,10 +137,10 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ५. हेडर बॅनर आणि ३D बटणे
+# ६. हेडर बॅनर आणि ३D बटणे
 full_app_html = """
 <div class="header-card">
-    <div class="header-title">✨ आकांक्षा इंटरप्राईजेस RTI AI ॲप कायदेशीर सहाय्य ✨</div>
+    <div class="header-title">✨ आकांक्षा एंटरप्राईजेस RTI AI ॲप कायदेशीर सहाय्य ✨</div>
     <div class="header-subtitle">⚡ घरबसल्या RTI अर्ज व शासकीय तक्रार एका सेकंदात A4 साईज मध्ये मोफत मिळवा ⚡</div>
     <div class="header-divider"></div>
     <div class="header-footer">👤 सतीश अशोक प्रधान | 📱 मो. ८६६8235395</div>
@@ -150,7 +160,7 @@ full_app_html = """
 st.markdown(full_app_html, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# ६. फॉर्म्स व AI चॅट ऑपरेशन्स
+# ७. फॉर्म्स व AI चॅट ऑपरेशन्स
 # ---------------------------------------------------------
 
 if current_form == "jodpatra_a":
@@ -304,11 +314,10 @@ elif current_form == "ai_chat":
         with st.chat_message("assistant"):
             with st.spinner("AI विचार करत आहे व स्पष्ट मराठी आवाज तयार करत आहे..."):
                 auto_models = [
-                    "gemini-3.5-flash-lite",
-                    "gemini-3.5-flash",
+                    "gemini-2.0-flash",
+                    "gemini-2.0-flash-lite",
                     "gemini-1.5-flash",
-                    "gemini-1.5-pro",
-                    "gemini-2.0-flash"
+                    "gemini-1.5-pro"
                 ]
 
                 response_text = None
@@ -462,27 +471,84 @@ elif current_form == "consumer":
         st.subheader("📋 मसुदा पाहणी:")
         st.text_area("", st.session_state.draft_cons_text, height=220)
         st.download_button("📥 ग्राहक मंच अर्ज (A4 PDF) डाऊनलोड करा", data=st.session_state.pdf_cons, file_name="Consumer_Complaint.html", mime="text/html")
-import streamlit as st
 
-# हेडर, फुटर आणि मेनू लपवण्यासाठी CSS
-hide_menu_style = """
-        <style>
-        #MainMenu {visibility: hidden;}
-        header {visibility: hidden;}
-        footer {visibility: hidden;}
-        div[data-testid="stToolbar"] {visibility: hidden;}
-        </style>
-        """
-st.markdown(hide_menu_style, unsafe_allow_html=True)
+# ---------------------------------------------------------
+# ८. सोशियल मीडिया शेअर - ऑल-इन-वन शेअर बटण (Drop-down Menu)
+# ---------------------------------------------------------
 st.markdown("---")
-st.markdown("### 📢 हे ॲप तुमच्या मित्रांना शेअर करा:")
 
 app_link = "https://rti-ai-app-eydmnrwsmhvwhmryv7nn4v.streamlit.app/?v=3"
+share_text = f"घरबसल्या RTI अर्ज व शासकीय तक्रारीसाठी हे मोफत AI ॲप वापरा: {app_link}"
 
-col1, col2, col3 = st.columns(3)
-with col1:
-    st.markdown(f'<a href="https://api.whatsapp.com/send?text=घरबसल्या RTI अर्ज व शासकीय तक्रारीसाठी हे मोफत AI ॲप वापरा: {app_link}" target="_blank"><button style="background-color:#25D366; color:white; border:none; padding:10px; border-radius:8px; width:100%; font-weight:bold;">💬 WhatsApp</button></a>', unsafe_allow_html=True)
-with col2:
-    st.markdown(f'<a href="https://www.facebook.com/sharer/sharer.php?u={app_link}" target="_blank"><button style="background-color:#1877F2; color:white; border:none; padding:10px; border-radius:8px; width:100%; font-weight:bold;">📘 Facebook</button></a>', unsafe_allow_html=True)
-with col3:
-    st.markdown(f'<a href="https://t.me/share/url?url={app_link}&text=RTI व कायदेशीर सहाय्य AI ॲप" target="_blank"><button style="background-color:#0088cc; color:white; border:none; padding:10px; border-radius:8px; width:100%; font-weight:bold;">✈️ Telegram</button></a>', unsafe_allow_html=True)
+# शेअरिंग लिंक्स
+whatsapp_url = f"https://api.whatsapp.com/send?text={share_text}"
+facebook_url = f"https://www.facebook.com/sharer/sharer.php?u={app_link}"
+telegram_url = f"https://t.me/share/url?url={app_link}&text=RTI व कायदेशीर सहाय्य AI ॲप"
+sms_url = f"sms:?body={share_text}"
+messenger_url = f"fb-messenger://share/?link={app_link}"
+instagram_url = "https://www.instagram.com/"
+
+# एकाच बटनात सर्व पर्याय दाखवणारा HTML & CSS कोड
+single_share_code = f"""
+<style>
+.share-details {{
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    border: 2px solid #ffd700;
+    border-radius: 12px;
+    padding: 12px;
+    color: white;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+    margin-bottom: 20px;
+}}
+.share-summary {{
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #ffd700;
+}}
+.share-summary::-webkit-details-marker {{
+    display: none;
+}}
+.share-grid {{
+    display: grid;
+    grid-template-columns: repeat( auto-fit, minmax(130px, 1fr) );
+    gap: 8px;
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px dashed rgba(255,255,255,0.3);
+}}
+.share-item {{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    border-radius: 8px;
+    color: white !important;
+    font-weight: bold;
+    font-size: 13px;
+    text-decoration: none !important;
+    text-align: center;
+}}
+</style>
+
+<details class="share-details">
+    <summary class="share-summary">
+        <span>📢 हे ॲप मित्रांना शेअर करा (सर्व पर्याय)</span>
+        <span style="font-size: 18px;">▼</span>
+    </summary>
+    <div class="share-grid">
+        <a href="{whatsapp_url}" target="_blank" class="share-item" style="background-color: #25D366;">💬 WhatsApp</a>
+        <a href="{facebook_url}" target="_blank" class="share-item" style="background-color: #1877F2;">📘 Facebook</a>
+        <a href="{telegram_url}" target="_blank" class="share-item" style="background-color: #0088cc;">✈️ Telegram</a>
+        <a href="{sms_url}" class="share-item" style="background-color: #ff9900;">📱 SMS</a>
+        <a href="{messenger_url}" target="_blank" class="share-item" style="background-color: #006AFF;">💬 Messenger</a>
+        <a href="{instagram_url}" target="_blank" class="share-item" style="background-color: #E1306C;">📸 Instagram</a>
+    </div>
+</details>
+"""
+
+st.markdown(single_share_code, unsafe_allow_html=True)
