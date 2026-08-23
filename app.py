@@ -317,8 +317,9 @@ elif current_form == "ai_chat":
                     "gemini-2.0-flash",
                     "gemini-2.0-flash-lite",
                     "gemini-1.5-flash",
-                    "gemini-1.5-pro"
-                ]
+                    "gemini-1.5-pro" 
+                    "gemini-2.5-flash",
+                    "gemini-3.7-flash",]
 
                 response_text = None
                 last_error = ""
