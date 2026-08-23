@@ -3,73 +3,9 @@ from PIL import Image
 import google.generativeai as genai
 from gtts import gTTS
 import io
-import json
-import os
 
 # १. पेज कॉन्फिगरेशन
 st.set_page_config(page_title="आकांक्षा RTI AI", layout="wide")
-
-# ---------------------------------------------------------
-# PWA (Progressive Web App) ऑटोजेनरेशन कॉन्फिगरेशन
-# ---------------------------------------------------------
-manifest_data = {
-    "name": "आकांक्षा RTI AI ॲप",
-    "short_name": "RTI AI",
-    "start_url": "/",
-    "display": "standalone",
-    "background_color": "#0f172a",
-    "theme_color": "#0f172a",
-    "icons": [
-        {
-            "src": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
-            "sizes": "512x512",
-            "type": "image/png"
-        }
-    ]
-}
-
-if not os.path.exists("manifest.json"):
-    with open("manifest.json", "w", encoding="utf-8") as f:
-        json.dump(manifest_data, f, ensure_ascii=False)
-
-if not os.path.exists("sw.js"):
-    with open("sw.js", "w", encoding="utf-8") as f:
-        f.write("""
-        self.addEventListener('install', (e) => {
-          e.waitUntil(
-            caches.open('rti-ai-store').then((cache) => {
-              return cache.addAll(['/']);
-            })
-          );
-        });
-        self.addEventListener('fetch', (e) => {
-          e.respondWith(
-            caches.match(e.request).then((response) => {
-              return response || fetch(e.request);
-            })
-          );
-        });
-        """)
-
-# ब्राउझरला हे ॲप इन्स्टॉल करण्यासाठी सांगणारे HTML टॅग्ज
-pwa_header = """
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#0f172a">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then((reg) => { console.log('Service Worker registered!', reg); })
-        .catch((err) => { console.log('Service Worker registration failed:', err); });
-    });
-  }
-</script>
-"""
-st.markdown(pwa_header, unsafe_allow_html=True)
-# ---------------------------------------------------------
 
 # २. निवडलेला फॉर्म ट्रॅक करणे
 query_params = st.query_params
@@ -92,7 +28,6 @@ def create_official_a4_pdf(title_header, rule_text, main_title, body_content, ap
             color: #000;
             padding: 5px;
         }}
-        .top-header {{ text-align: center; font-size: 11pt; font-weight: bold; margin-bottom: 5px; }}
         .stamp-box {{
             float: right;
             border: 1px dashed #000;
@@ -218,7 +153,6 @@ st.markdown(full_app_html, unsafe_allow_html=True)
 # ६. फॉर्म्स व AI चॅट ऑपरेशन्स
 # ---------------------------------------------------------
 
-# (१) जोडपत्र 'अ' (माहिती अर्ज)
 if current_form == "jodpatra_a":
     st.info("📋 जोडपत्र 'अ' - माहितीचा अधिकार अधिनियम, २००५ अन्वये अर्ज (नियम ३)")
     with st.form("form_a"):
@@ -259,7 +193,6 @@ if current_form == "jodpatra_a":
         st.text_area("", st.session_state.draft_a_text, height=220)
         st.download_button("📥 जोडपत्र 'अ' (A4 PDF) डाऊनलोड करा", data=st.session_state.pdf_a, file_name="Jodpatra_A_RTI.html", mime="text/html")
 
-# (२) जोडपत्र 'ब' (प्रथम अपील)
 elif current_form == "first_appeal":
     st.info("⚖️ जोडपत्र 'ब' - प्रथम अपील अर्ज (कलम १९ (१) - नियम ५(१))")
     with st.form("form_b"):
@@ -297,7 +230,6 @@ elif current_form == "first_appeal":
         st.text_area("", st.session_state.draft_b_text, height=220)
         st.download_button("📥 जोडपत्र 'ब' (A4 PDF) डाऊनलोड करा", data=st.session_state.pdf_b, file_name="Jodpatra_B_First_Appeal.html", mime="text/html")
 
-# (३) जोडपत्र 'क' (द्वितीय अपील - माहिती आयोग)
 elif current_form == "second_appeal":
     st.info("🏛️ जोडपत्र 'क' - द्वितिय अपील अर्ज (कलम १९ (३) - नियम ५(२))")
     with st.form("form_c"):
@@ -335,7 +267,6 @@ elif current_form == "second_appeal":
         st.text_area("", st.session_state.draft_c_text, height=220)
         st.download_button("📥 जोडपत्र 'क' (A4 PDF) डाऊनलोड करा", data=st.session_state.pdf_c, file_name="Jodpatra_C_Second_Appeal.html", mime="text/html")
 
-# (४) AI चॅट (ऑटोमॅटिक मॉडेल सिलेक्शन + स्पिकर ऑडिओ प्लेअर फिचर)
 elif current_form == "ai_chat":
     st.info("✨ आकांक्षा AI चॅट असिस्टंट - RTI, कायदेशीर व शासकीय कामांसाठी मोफत AI मदत व ऑडिओ ऐका")
 
@@ -419,7 +350,6 @@ elif current_form == "ai_chat":
                 else:
                     st.error(f"❌ API एरर: {last_error}")
 
-# (५) कोर्ट याचिका
 elif current_form == "court":
     st.info("📜 कोर्ट याचिका / लीगल ब्रीफ (वकिलांसाठी मसुदा)")
     with st.form("court_form"):
@@ -453,7 +383,6 @@ elif current_form == "court":
         st.text_area("", st.session_state.draft_court_text, height=220)
         st.download_button("📥 कोर्ट मसुदा (A4 PDF) डाऊनलोड करा", data=st.session_state.pdf_court, file_name="Court_Petition_Draft.html", mime="text/html")
 
-# (६) शासकीय तक्रार
 elif current_form == "complaint":
     st.info("📣 शासकीय तक्रार निवारण अर्ज")
     with st.form("complaint_form"):
@@ -486,13 +415,11 @@ elif current_form == "complaint":
         st.text_area("", st.session_state.draft_comp_text, height=220)
         st.download_button("📥 तक्रार अर्ज (A4 PDF) डाऊनलोड करा", data=st.session_state.pdf_comp, file_name="Govt_Complaint.html", mime="text/html")
 
-# (७) आरटीआय ऑनलाईन पोर्टल सहाय्य
 elif current_form == "rti_portal":
     st.info("🌐 आरटीआय ऑनलाईन पोर्टल मार्गदर्शन")
     st.write("• **महाराष्ट्र आरटीआय पोर्टल:** १५० शब्दांची मर्यादा व ₹१० शुल्क.")
     st.write("• **केंद्रीय आरटीआय पोर्टल:** ५०० शब्दांची मर्यादा व ₹१० शुल्क.")
 
-# (८) ग्राहक मंच
 elif current_form == "consumer":
     st.info("🛒 ग्राहक मंच (Consumer Commission) संपूर्ण मार्गदर्शन व अर्ज मसुदा")
     st.markdown("""
