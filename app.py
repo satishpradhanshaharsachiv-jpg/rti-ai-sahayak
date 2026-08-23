@@ -269,9 +269,9 @@ elif current_form == "second_appeal":
         st.text_area("", st.session_state.draft_c_text, height=220)
         st.download_button("📥 जोडपत्र 'क' (A4 PDF) डाऊनलोड करा", data=st.session_state.pdf_c, file_name="Jodpatra_C_Second_Appeal.html", mime="text/html")
 
-# (४) AI चॅट (ऑटोमॅटिक मॉडेल सिलेक्शन - ड्रॉपडाऊन हटवले)
+# (४) AI चॅट (नवीन अपडेटेड मॉडेल्स + ऑटो फॉलबॅक)
 elif current_form == "ai_chat":
-    st.info("✨ आकांक्षा AI चॅट असिस्टंट - RTI, कायदेशीर व शासकीय कामांसाठी ऑटो-स्मार्ट AI मदत")
+    st.info("✨ आकांक्षा AI चॅट असिस्टंट - RTI, कायदेशीर व शासकीय कामांसाठी मोफत AI मदत")
 
     # १. Secrets मधून API Key घेणे
     GEMINI_API_KEY = st.secrets.get("GEMINI_API_KEY", "")
@@ -297,7 +297,7 @@ elif current_form == "ai_chat":
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-    # ५. प्रश्न उत्तर जनरेशन (पूर्णपणे ऑटोमॅटिक बॅकएंड सिलेक्शन)
+    # ५. प्रश्न उत्तर जनरेशन (नवीन सुसंगत मॉडेल्ससह)
     if user_input := st.chat_input("तुमचा प्रश्न किंवा अडचण येथे लिहा..."):
         st.chat_message("user").markdown(user_input)
         st.session_state.chat_history.append({"role": "user", "content": user_input})
@@ -310,8 +310,14 @@ elif current_form == "ai_chat":
 
         with st.chat_message("assistant"):
             with st.spinner("AI विचार करत आहे व उत्तर तयार करत आहे..."):
-                # स्वयंचलित (Auto) ट्राय होणारी मॉडेल्स
-                auto_models = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash-lite"]
+                # Google ने सुचवलेली नवीन समर्थित मॉडेल्स प्राधान्यक्रमाने
+                auto_models = [
+                    "gemini-3.5-flash-lite",
+                    "gemini-3.5-flash",
+                    "gemini-1.5-flash",
+                    "gemini-1.5-pro",
+                    "gemini-2.0-flash"
+                ]
 
                 response_text = None
                 last_error = ""
