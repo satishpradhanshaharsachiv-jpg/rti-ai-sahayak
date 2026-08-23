@@ -794,8 +794,7 @@ single_share_code = f"""
 
 [st.markdown(single_share_code, unsafe_allow_html=True)]
 
-
-[# ---------------------------------------------------------
+# ---------------------------------------------------------
 # १०. AI च्या अष्टपैलू क्षमता (Drop-down Features Box)
 # ---------------------------------------------------------
 
@@ -933,4 +932,4 @@ ai_all_features_html = """
 </details>
 """
 
-st.markdown(ai_all_features_html, unsafe_allow_html=True)]
+st.markdown(ai_all_features_html, unsafe_allow_html=True)
