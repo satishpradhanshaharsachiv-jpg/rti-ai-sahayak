@@ -793,3 +793,142 @@ single_share_code = f"""
 """
 
 st.markdown(single_share_code, unsafe_allow_html=True)
+# ---------------------------------------------------------
+# १०. AI च्या अष्टपैलू क्षमता (Drop-down Features Box)
+# ---------------------------------------------------------
+
+ai_all_features_html = """
+<style>
+.ai-features-card {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+    border: 2px solid #38ef7d;
+    border-radius: 14px;
+    padding: 14px 16px;
+    color: #ffffff;
+    box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.45);
+    margin-top: 25px;
+    margin-bottom: 25px;
+    font-family: sans-serif;
+}
+.ai-features-title {
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #38ef7d;
+}
+.ai-features-title::-webkit-details-marker {
+    display: none;
+}
+.ai-cat-block {
+    background: rgba(255, 255, 255, 0.05);
+    border-left: 4px solid #ffd700;
+    padding: 10px 14px;
+    margin-top: 12px;
+    border-radius: 8px;
+}
+.ai-cat-header {
+    color: #ffd700;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+.ai-cat-list {
+    font-size: 13px;
+    color: #e2e8f0;
+    line-height: 1.6;
+    margin: 0;
+    padding-left: 18px;
+}
+</style>
+
+<details class="ai-features-card">
+    <summary class="ai-features-title">
+        <span>🚀 आकांक्षा AI च्या सर्व क्षमता व संपूर्ण मार्गदर्शक यादी (येथे क्लिक करा)</span>
+        <span style="font-size: 18px;">▼</span>
+    </summary>
+    
+    <div class="ai-cat-block">
+        <div class="ai-cat-header">1. लेखन आणि संवाद (Writing & Communication)</div>
+        <ul class="ai-cat-list">
+            <li><b>मजकूर लिहिणे:</b> ईमेल, निबंध, ब्लॉग आणि सोशल मीडिया पोस्ट तयार करणे.</li>
+            <li><b>व्याकरण सुधारणे:</b> स्पेलिंग आणि व्याकरणाच्या चुका दुरुस्त करणे.</li>
+            <li><b>पुनर्रचना (Rewriting):</b> लिहिलेला मजकूर अधिक चांगल्या किंवा सोप्या भाषेत बदलणे.</li>
+            <li><b>भाषांतर (Translation):</b> मराठी, इंग्रजीसह जगातील अनेक भाषांमध्ये भाषांतर.</li>
+            <li><b>मजकुराचा सारांश:</b> मोठे रिपोर्ट किंवा पुस्तके वाचून संक्षिप्त सारांश देणे.</li>
+        </ul>
+    </div>
+
+    <div class="ai-cat-block">
+        <div class="ai-cat-header">2. कला आणि निर्मिती (Creative & Design)</div>
+        <ul class="ai-cat-list">
+            <li><b>चित्र निर्मिती व संकल्पना:</b> हुबेहूब फोटो किंवा चित्राच्या संकल्पना तयार करणे.</li>
+            <li><b>फोटो एडिटिंग:</b> बॅकग्राउंड बदलणे किंवा नको असलेला भाग काढण्याचे मार्गदर्शन.</li>
+            <li><b>व्हिडिओ मेकिंग:</b> मजकुरावरून (Text) व्हिडिओ स्क्रिप्ट आणि प्लॅनिंग बनवणे.</li>
+            <li><b>संगीत व गाणी:</b> शब्दांवरून नवीन गाण्याचे बोल (Lyrics) तयार करणे.</li>
+            <li><b>लोगो आणि बॅनर:</b> व्यवसायासाठी डिझाईन आणि लेआउटच्या कल्पना देणे.</li>
+        </ul>
+    </div>
+
+    <div class="ai-cat-block">
+        <div class="ai-cat-header">3. शिक्षण आणि अभ्यास (Education & Learning)</div>
+        <ul class="ai-cat-list">
+            <li><b>वैयक्तिक शिक्षक (Tutor):</b> कठीण विषय सोप्या भाषेत समजावून सांगणे.</li>
+            <li><b>प्रश्नमंजुषा (Quizzes):</b> सरावासाठी प्रश्नपत्रिका किंवा क्विझ तयार करणे.</li>
+            <li><b>भाषा शिकणे:</b> नवीन भाषा (उदा. इंग्रजी) बोलण्याचा सराव करून घेणे.</li>
+            <li><b>गणित सोडवणे:</b> कठीण गणिते पायऱ्यांसह (Step-by-step) सोडवून देणे.</li>
+        </ul>
+    </div>
+
+    <div class="ai-cat-block">
+        <div class="ai-cat-header">4. तांत्रिक आणि कोडिंग (Technical & Coding)</div>
+        <ul class="ai-cat-list">
+            <li><b>कोड लिहिणे:</b> Python, Java, HTML यांसारख्या भाषांमध्ये कोडिंग करणे.</li>
+            <li><b>भूल दुरुस्ती (Debugging):</b> कोडिंगमधील चुका शोधून त्या दुरुस्त करणे.</li>
+            <li><b>वेबसाईट डिझाईन:</b> साध्या वेबसाईटचा आराखडा व स्ट्रक्चर तयार करणे.</li>
+        </ul>
+    </div>
+
+    <div class="ai-cat-block">
+        <div class="ai-cat-header">5. दैनंदिन नियोजन आणि व्यवस्थापन (Daily Productivity)</div>
+        <ul class="ai-cat-list">
+            <li><b>प्रवास नियोजन:</b> प्रवासाचे संपूर्ण वेळापत्रक (Travel Itinerary) बनवणे.</li>
+            <li><b>आहार आणि फिटनेस:</b> रोजचा डाएट प्लॅन आणि व्यायामाचे वेळापत्रक तयार करणे.</li>
+            <li><b>वेळापत्रक व्यवस्थापन:</b> मिटिंग सेट करणे आणि कामाची आठवण करून देणे.</li>
+            <li><b>आवाज ओळखणे:</b> बोललेले शब्द व ऑडिओ समजावून उत्तर देणे.</li>
+        </ul>
+    </div>
+
+    <div class="ai-cat-block">
+        <div class="ai-cat-header">6. व्यवसाय आणि डेटा विश्लेषण (Business & Data Analysis)</div>
+        <ul class="ai-cat-list">
+            <li><b>डेटा समजून घेणे:</b> मोठ्या एक्सेल/डेटा शीटचे विश्लेषण करून मुद्दे सांगणे.</li>
+            <li><b>मार्केटिंग आयडिया:</b> व्यवसायासाठी नवीन कल्पना आणि जाहिरातींचे प्लॅनिंग करणे.</li>
+            <li><b>ग्राहक सेवा (Chatbots):</b> २४ तास ग्राहकांच्या प्रश्नांची आपोआप उत्तरे देणे.</li>
+        </ul>
+    </div>
+
+    <div class="ai-cat-block">
+        <div class="ai-cat-header">7. चालू घडामोडी व स्पर्धा परीक्षा (Current Affairs & Exams)</div>
+        <ul class="ai-cat-list">
+            <li><b>रोजच्या बातम्यांचा सारांश:</b> आजच्या ५ महत्त्वाच्या घडामोडींची सोपी यादी.</li>
+            <li><b>स्पर्धा परीक्षा अभ्यास:</b> MPSC, UPSC परीक्षांसाठी चालू घडामोडींवर आधारित MCQs बनवणे.</li>
+            <li><b>विशिष्ट घटना:</b> नवीन योजना, खेळ किंवा राजकीय घडामोडी सविस्तर समजवणे.</li>
+        </ul>
+    </div>
+
+    <div class="ai-cat-block">
+        <div class="ai-cat-header">8. रोबोट, विमान आणि रेल्वे निर्मिती (Engineering & Manufacturing)</div>
+        <ul class="ai-cat-list">
+            <li><b>रोबोटिक्स (Robotics):</b> Arduino/Python कोड, सेन्सर Wiring व Circuit मार्गदर्शन.</li>
+            <li><b>विमान व रेल्वे इंजिनिअरिंग:</b> 3D डिझायनिंग मार्गदर्शन, हलके साहित्य (Carbon Fiber/Aluminum) निवडणे.</li>
+            <li><b>सुरक्षा आणि चाचणी:</b> डिजिटल चाचणी (Simulation) व तांत्रिक चुका दुरुस्त करणे.</li>
+        </ul>
+    </div>
+</details>
+"""
+
+st.markdown(ai_all_features_html, unsafe_allow_html=True)
