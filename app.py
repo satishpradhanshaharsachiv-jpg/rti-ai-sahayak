@@ -7,51 +7,79 @@ st.set_page_config(page_title="आकांक्षा RTI AI", layout="wide")
 query_params = st.query_params
 current_form = query_params.get("form", "jodpatra_a")
 
-# ३. A4 साईज PDF/प्रिंट फायली तयार करणारे फंक्शन
-def create_a4_pdf_download(title, body_text):
+# ३. शासकीय राजपत्राच्या हुबेहूब A4 नमुन्यात PDF/प्रिंट तयार करणारे फंक्शन
+def create_official_a4_pdf(title_header, rule_text, main_title, body_content, applicant_name, applicant_address, applicant_mobile):
     html_code = f"""
     <!DOCTYPE html>
     <html>
     <head>
     <meta charset="utf-8">
-    <title>{title}</title>
+    <title>{main_title}</title>
     <style>
-        @page {{ size: A4; margin: 20mm; }}
+        @page {{ size: A4; margin: 15mm 20mm 20mm 20mm; }}
         body {{
             font-family: 'Arial', 'Helvetica', sans-serif;
-            font-size: 14pt;
-            line-height: 1.6;
+            font-size: 13pt;
+            line-height: 1.5;
             color: #000;
-            padding: 10px;
+            padding: 5px;
         }}
-        .header {{ text-align: center; font-weight: bold; font-size: 18pt; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; }}
-        .footer {{ margin-top: 40px; text-align: right; font-weight: bold; }}
-        .content {{ white-space: pre-wrap; font-size: 13pt; text-align: justify; }}
+        .top-header {{ text-align: center; font-size: 11pt; font-weight: bold; margin-bottom: 5px; }}
+        .stamp-box {{
+            float: right;
+            border: 1px dashed #000;
+            padding: 8px;
+            font-size: 9pt;
+            text-align: center;
+            width: 140px;
+            margin-bottom: 10px;
+        }}
+        .title-container {{ text-align: center; margin-top: 10px; margin-bottom: 20px; clear: both; }}
+        .jodpatra-title {{ font-size: 18pt; font-weight: bold; text-decoration: underline; margin-bottom: 4px; }}
+        .rule-text {{ font-size: 11pt; font-weight: bold; margin-bottom: 4px; }}
+        .act-title {{ font-size: 13pt; font-weight: bold; }}
+        .content {{ font-size: 12pt; text-align: justify; margin-top: 15px; line-height: 1.6; }}
+        .footer-section {{ margin-top: 40px; float: right; text-align: left; width: 250px; font-size: 12pt; }}
+        .bottom-clear {{ clear: both; }}
         @media print {{
             .no-print {{ display: none; }}
         }}
         .btn-print {{
-            background-color: #27ae60; color: white; padding: 12px 20px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; margin-bottom: 20px;
+            background-color: #27ae60; color: white; padding: 10px 18px; border: none; border-radius: 6px; font-size: 15px; cursor: pointer; margin-bottom: 15px; font-weight: bold;
         }}
     </style>
     </head>
     <body>
         <button class="btn-print no-print" onclick="window.print()">🖨️ A4 साईज PDF म्हणून सेव्ह / प्रिंट करा</button>
-        <div class="header">{title}</div>
-        <div class="content">{body_text}</div>
-        <div class="footer">
-            <br><br>
-            अर्जदाराची सही / प्रेषक<br>
-            (सतीश अशोक प्रधान)<br>
-            मिषारवाडी, छत्रपती संभाजीनगर<br>
-            मो. ८६६८२३५३९५
+        
+        <div class="stamp-box">
+            येथे कोर्ट फी मुद्रांक चिकटवावा
         </div>
+        
+        <div class="title-container">
+            <div class="jodpatra-title">{title_header}</div>
+            <div class="rule-text">{rule_text}</div>
+            <div class="act-title">{main_title}</div>
+        </div>
+        
+        <div class="content">
+            {body_content}
+        </div>
+        
+        <div class="footer-section">
+            <br>
+            <strong>अर्जदाराची सही / अंगठा:</strong> _____________<br>
+            <strong>नाव:</strong> {applicant_name}<br>
+            <strong>पत्ता:</strong> {applicant_address}<br>
+            <strong>मोबाईल:</strong> {applicant_mobile}
+        </div>
+        <div class="bottom-clear"></div>
     </body>
     </html>
     """
     return html_code
 
-# ४. ३D डिझाईन आणि रंगांसाठी CSS (काहीही बदललेले नाही)
+# ४. ३D डिझाईन आणि रंगांसाठी CSS (होम पेजची रचना न बदलता)
 st.markdown("""
 <style>
 .header-card {
@@ -119,133 +147,239 @@ full_app_html = """
 st.markdown(full_app_html, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# ६. बटनानुसार उघडणारे फॉर्म्स व A4 डाऊनलोड (फॉर्मच्या बाहेर)
+# ६. शासकीय फॉरमॅटनुसार अर्ज फॉर्म्स व डाऊनलोड
 # ---------------------------------------------------------
 
-# (१) जोडपत्र 'अ'
+# (१) जोडपत्र 'अ' (माहिती अर्ज)
 if current_form == "jodpatra_a":
-    st.info("📋 जोडपत्र 'अ' (माहितीचा अधिकार अर्ज - नियम ३) - १ पान A4 मर्यादा")
+    st.info("📋 जोडपत्र 'अ' - माहितीचा अधिकार अधिनियम, २००५ अन्वये अर्ज (नियम ३)")
     with st.form("form_a"):
         karyalay = st.text_input("जन माहिती अधिकाऱ्याच्या कार्यालयाचे नाव व पत्ता")
-        name = st.text_input("अर्जदाराचे संपूर्ण नाव", value="सतीश अशोक प्रधान")
-        address = st.text_area("अर्जदाराचा पत्ता", value="मिषारवाडी, छत्रपती संभाजीनगर")
+        name = st.text_input("अर्जदाराचे संपूर्ण नाव", placeholder="तुमचे पूर्ण नाव लिहा")
+        address = st.text_area("अर्जदाराचा पूर्ण पत्रव्यवहाराचा पत्ता", placeholder="घर क्र., रस्ता, भाग, शहर...")
+        mobile = st.text_input("मोबाईल क्रमांक", placeholder="उदा. 9876543210")
         subject = st.text_input("माहितीचा विषय")
-        period = st.text_input("माहितीचा कालावधी (उदा. २०२४ ते २०२६)")
-        desc = st.text_area("हव्या असलेल्या माहितीचे वर्णन")
-        submitted_a = st.form_submit_button("📄 A4 साईज अर्ज तयार करा")
+        period = st.text_input("माहितीचा कालावधी", placeholder="उदा. २०२४ ते २०२६")
+        desc = st.text_area("हव्या असलेल्या माहितीचे वर्णन (सविस्तर मुद्दे)")
+        post_type = st.selectbox("माहिती कशी हवी आहे?", ["टपालाद्वारे (साधे/नोंदणीकृत)", "व्यक्तिशः (स्वहस्ते)"])
+        submitted_a = st.form_submit_button("📄 जोडपत्र 'अ' A4 अर्ज तयार करा")
         
         if submitted_a:
-            st.session_state.draft_a = f"प्रति,\nराज्य जन माहिती अधिकारी,\n{karyalay}\n\n१. अर्जदाराचे नाव: {name}\n२. पत्ता: {address}\n\n३. हव्या असलेल्या माहितीचा तपशील:\n(एक) विषय: {subject}\n(दोन) कालावधी: {period}\n(तीन) माहितीचे वर्णन: {desc}\n(चार) माहिती टपालाद्वारे नोंदणीकृत टपालाने हवी आहे.\n\n४. अर्जदार दारिद्र्यरेषेखालील नाही.\n\nठिकाण: छत्रपती संभाजीनगर\nदिनांक: २४/०२/२०२६"
+            body = f"""
+            <strong>प्रति,</strong><br>
+            जन माहिती अधिकारी,<br>
+            {karyalay}<br><br>
+            <strong>१. अर्जदाराचे संपूर्ण नाव:</strong> {name}<br>
+            <strong>२. पत्ता:</strong> {address}<br><br>
+            <strong>३. हव्या असलेल्या माहितीचा तपशील:</strong><br>
+            (एक) माहितीचा विषय: {subject}<br>
+            (दोन) ज्या कालावधी संबंधात माहिती हवी असेल तो कालावधी: {period}<br>
+            (तीन) हव्या असलेल्या माहितीचे वर्णन: {desc}<br>
+            (चार) माहिती टपालाद्वारे हवी आहे की व्यक्तिशः हवी आहे: {post_type}<br>
+            (पाच) टपालाद्वारे हवी असल्यास: नोंदणीकृत टपालाने<br><br>
+            <strong>४. अर्जदार दारिद्र्यरेषेखालील आहे किंवा कसे:</strong> नाही.<br><br>
+            <strong>ठिकाण:</strong> _______________<br>
+            <strong>दिनांक:</strong> ___/___/२०__
+            """
+            pdf_code = create_official_a4_pdf("जोडपत्र 'अ'", "(नियम ३ पहा)", "माहितीचा अधिकार अधिनियम, २००५ अन्वये माहिती मिळविण्यासाठीच्या अर्जाचा नमुना", body, name, address, mobile)
+            st.session_state.draft_a_text = f"जोडपत्र 'अ' (नियम ३ पहा)\nप्रति,\nजन माहिती अधिकारी, {karyalay}\n\n१. नाव: {name}\n२. पत्ता: {address}\n\n३. माहितीचा तपशील:\n- विषय: {subject}\n- कालावधी: {period}\n- वर्णन: {desc}\n- टपाल प्रकार: {post_type}"
+            st.session_state.pdf_a = pdf_code
 
-    if 'draft_a' in st.session_state:
-        st.success("तुमचा जोडपत्र 'अ' अर्ज तयार झाला आहे!")
-        st.subheader("📋 मसुदा पाहणी (A4 फॉरमॅट):")
-        st.text_area("", st.session_state.draft_a, height=250)
-        st.download_button("📥 A4 PDF फाईल डाऊनलोड करा", data=create_a4_pdf_download("माहितीचा अधिकार अर्ज (जोडपत्र अ)", st.session_state.draft_a), file_name="RTI_Application_A4.html", mime="text/html")
+    if 'draft_a_text' in st.session_state:
+        st.success("अर्जाचा मसुदा तयार झाला आहे!")
+        st.subheader("📋 अर्जाचा मसुदा पाहणी:")
+        st.text_area("", st.session_state.draft_a_text, height=220)
+        st.download_button("📥 जोडपत्र 'अ' (A4 PDF) डाऊनलोड करा", data=st.session_state.pdf_a, file_name="Jodpatra_A_RTI.html", mime="text/html")
 
-# (२) प्रथम अपील
+# (२) जोडपत्र 'ब' (प्रथम अपील)
 elif current_form == "first_appeal":
-    st.info("⚖️ जोडपत्र 'ब' - प्रथम अपील अर्ज (कलम १९(१))")
+    st.info("⚖️ जोडपत्र 'ब' - प्रथम अपील अर्ज (कलम १९ (१) - नियम ५(१))")
     with st.form("form_b"):
         officer = st.text_input("प्रथम अपीलीय अधिकाऱ्याचे पदनाम व पत्ता")
-        name = st.text_input("अपीलकाराचे नाव", value="सतीश अशोक प्रधान")
-        reason = st.text_area("अपील करण्याचे कारण (माहिती दिली नाही/अपूर्ण दिली)")
-        submitted_b = st.form_submit_button("⚖️ A4 प्रथम अपील तयार करा")
+        name = st.text_input("अपीलकाराचे संपूर्ण नाव", placeholder="तुमचे नाव")
+        address = st.text_area("पत्रव्यवहाराचा पत्ता", placeholder="तुमचा पत्ता")
+        mobile = st.text_input("मोबाईल क्रमांक")
+        pio_details = st.text_input("संबंधित जन माहिती अधिकाऱ्याचा तपशील")
+        reason = st.text_area("अपील करण्याचे कारण / प्रयोजन", placeholder="उदा. वेळेत माहिती न दिल्याने / चुकीची माहिती दिल्याने...")
+        info_detail = st.text_area("आवश्यक असलेल्या माहितीचा तपशील व विभाग")
+        submitted_b = st.form_submit_button("⚖️ जोडपत्र 'ब' A4 अपील तयार करा")
         
         if submitted_b:
-            st.session_state.draft_b = f"प्रति,\nप्रथम अपीलीय अधिकारी,\n{officer}\n\nअपीलकाराचे नाव: {name}\nपत्ता: मिषारवाडी, छत्रपती संभाजीनगर\n\nअपील करण्याचे कारण:\n{reason}\n\nजन माहिती अधिकाऱ्याने मुदतीत योग्य माहिती न दिल्याने सदर प्रथम अपील सादर करत आहे."
+            body = f"""
+            <strong>प्रति,</strong><br>
+            प्रथम अपीलीय अधिकारी,<br>
+            {officer}<br><br>
+            <strong>(१) अपीलकाराचे पूर्ण नाव:</strong> {name}<br>
+            <strong>(२) पूर्ण पत्ता:</strong> {address}<br>
+            <strong>(३) संबंधित जन माहिती अधिकाऱ्याचा तपशील:</strong> {pio_details}<br>
+            <strong>(४) ज्या निर्णयाविरुद्ध अपील करावयाचे आहे त्याची तारीख:</strong> माहिती मिळाली नाही / अनिर्णित<br>
+            <strong>(५) अपील करण्याचे प्रयोजन:</strong> {reason}<br>
+            <strong>(६) आवश्यक असलेल्या माहितीचा तपशील:</strong> {info_detail}<br>
+            <strong>(७) माहितीशी संबंधित कार्यालय व विभाग:</strong> मूळ अर्ज जोडपत्र 'अ' ची छायाप्रत सोबत जोडली आहे.<br><br>
+            <strong>ठिकाण:</strong> _______________<br>
+            <strong>दिनांक:</strong> ___/___/२०__
+            """
+            pdf_code = create_official_a4_pdf("जोडपत्र 'ब'", "(नियम ५(१) नुसार)", "माहितीचा अधिकार कायदा, २००५ - कलम १९ (१) अन्वये प्रथम अपील अर्ज", body, name, address, mobile)
+            st.session_state.draft_b_text = f"जोडपत्र 'ब' (नियम ५(१))\nप्रति, प्रथम अपीलीय अधिकारी, {officer}\n१. अपीलकार: {name}\n२. पत्ता: {address}\n३. प्रयोजन: {reason}"
+            st.session_state.pdf_b = pdf_code
 
-    if 'draft_b' in st.session_state:
+    if 'draft_b_text' in st.session_state:
         st.success("प्रथम अपील मसुदा तयार झाला आहे!")
         st.subheader("📋 मसुदा पाहणी:")
-        st.text_area("", st.session_state.draft_b, height=220)
-        st.download_button("📥 A4 PDF प्रथम अपील डाऊनलोड करा", data=create_a4_pdf_download("प्रथम अपील अर्ज", st.session_state.draft_b), file_name="First_Appeal_A4.html", mime="text/html")
+        st.text_area("", st.session_state.draft_b_text, height=220)
+        st.download_button("📥 जोडपत्र 'ब' (A4 PDF) डाऊनलोड करा", data=st.session_state.pdf_b, file_name="Jodpatra_B_First_Appeal.html", mime="text/html")
 
-# (३) माहिती आयोग (द्वितीय अपील)
+# (३) जोडपत्र 'क' (द्वितीय अपील - माहिती आयोग)
 elif current_form == "second_appeal":
-    st.info("🏛️ जोडपत्र 'क' - द्वितिय अपील अर्ज (राज्य माहिती आयोग)")
+    st.info("🏛️ जोडपत्र 'क' - द्वितिय अपील अर्ज (कलम १९ (३) - नियम ५(२))")
     with st.form("form_c"):
         commissioner = st.text_input("मा. माहिती आयुक्त व राज्य माहिती आयोग कार्यालय पत्ता")
+        name = st.text_input("अपीलकाराचे संपूर्ण नाव", placeholder="तुमचे नाव")
+        address = st.text_area("पत्रव्यवहाराचा पत्ता", placeholder="तुमचा पत्ता")
+        mobile = st.text_input("मोबाईल क्रमांक")
+        pio_info = st.text_input("संबंधित जन माहिती अधिकाऱ्याचा तपशील")
+        fa_info = st.text_input("प्रथम अपीलीय प्राधिकाऱ्याचा तपशील")
         reason = st.text_area("दुसरे अपील करण्याचे प्रयोजन")
-        submitted_c = st.form_submit_button("🏛️ A4 द्वितीय अपील तयार करा")
+        submitted_c = st.form_submit_button("🏛️ जोडपत्र 'क' A4 द्वितीय अपील तयार करा")
         
         if submitted_c:
-            st.session_state.draft_c = f"प्रति,\nमा. राज्य माहिती आयुक्त,\n{commissioner}\n\nअपीलकार: सतीश अशोक प्रधान, छत्रपती संभाजीनगर\n\nप्रयोजन:\n{reason}\n\nप्रथम अपीलीय अधिकाऱ्याच्या आदेशानंतरही माहिती मिळालेली नाही, तरी योग्य कारवाई करून माहिती मिळावी."
+            body = f"""
+            <strong>प्रति,</strong><br>
+            मा. माहिती आयुक्त,<br>
+            राज्य माहिती आयोग कार्यालय,<br>
+            {commissioner}<br><br>
+            <strong>(१) अपीलकाराचे पूर्ण नाव:</strong> {name}<br>
+            <strong>(२) पत्रव्यवहाराचा पत्ता:</strong> {address}<br>
+            <strong>(३) संबंधित जन माहिती अधिकाऱ्याचा तपशील:</strong> {pio_info}<br>
+            <strong>(४) प्रथम अपीलीय प्राधिकाऱ्याचा तपशील:</strong> {fa_info}<br>
+            <strong>(५) दुसरे अपील करण्याचे प्रयोजन:</strong> {reason}<br>
+            <strong>(६) आवश्यक असलेल्या माहितीचा तपशील:</strong> सोबत मूळ अर्ज जोडपत्र 'अ' व प्रथम अपीलाची प्रत जोडली आहे.<br><br>
+            <strong>ठिकाण:</strong> _______________<br>
+            <strong>दिनांक:</strong> ___/___/२०__
+            """
+            pdf_code = create_official_a4_pdf("जोडपत्र 'क'", "(नियम ५(२) नुसार)", "माहितीचा अधिकार कायदा, २००५ - कलम १९ (३) अन्वये द्वितिय अपील अर्ज", body, name, address, mobile)
+            st.session_state.draft_c_text = f"जोडपत्र 'क' (नियम ५(२))\nप्रति, मा. माहिती आयुक्त, {commissioner}\nअपीलकार: {name}\nप्रयोजन: {reason}"
+            st.session_state.pdf_c = pdf_code
 
-    if 'draft_c' in st.session_state:
+    if 'draft_c_text' in st.session_state:
         st.success("द्वितीय अपील मसुदा तयार झाला आहे!")
         st.subheader("📋 मसुदा पाहणी:")
-        st.text_area("", st.session_state.draft_c, height=220)
-        st.download_button("📥 A4 PDF द्वितीय अपील डाऊनलोड करा", data=create_a4_pdf_download("द्वितीय अपील माहिती आयोग", st.session_state.draft_c), file_name="Second_Appeal_A4.html", mime="text/html")
+        st.text_area("", st.session_state.draft_c_text, height=220)
+        st.download_button("📥 जोडपत्र 'क' (A4 PDF) डाऊनलोड करा", data=st.session_state.pdf_c, file_name="Jodpatra_C_Second_Appeal.html", mime="text/html")
 
-# (४) कोर्ट याचिका (वकिलांना ड्राफ्ट देण्यासाठी मसुदा)
+# (४) कोर्ट याचिका
 elif current_form == "court":
-    st.info("📜 कोर्ट याचिका / कायदेशीर मसुदा (वकिलांसाठी लीगल ब्रीफ)")
+    st.info("📜 कोर्ट याचिका / लीगल ब्रीफ (वकिलांसाठी मसुदा)")
     with st.form("court_form"):
-        court_type = st.selectbox("कोर्टाचा प्रकार", ["जिल्हा व सत्र न्यायालय", "उच्च न्यायालय (High Court)", "दीवाणी न्यायालय (Civil Court)", "महसूल न्यायालय (Revenue Court)"])
-        petitioner = st.text_input("वादी / अर्जदाराचे नाव", value="सतीश अशोक प्रधान")
+        court_type = st.selectbox("कोर्टाचा प्रकार", ["जिल्हा व सत्र न्यायालय", "उच्च न्यायालय (High Court)", "दीवाणी न्यायालय (Civil Court)", "महसूल न्यायालय"])
+        petitioner = st.text_input("वादी / अर्जदाराचे नाव", placeholder="तुमचे नाव")
+        address = st.text_area("अर्जदाराचा पत्ता")
+        mobile = st.text_input("मोबाईल क्रमांक")
         respondent = st.text_input("प्रतिवादी / विरोधी पक्षाचे नाव")
-        matter = st.text_area("घटनेचा किंवा वादाचा मुख्य मुद्दा (काय घडले व काय न्याय हवा आहे?)")
+        matter = st.text_area("घटनेचा किंवा वादाचा मुख्य मुद्दा")
         submitted_court = st.form_submit_button("📜 वकिलांसाठी मसुदा तयार करा")
         
         if submitted_court:
-            st.session_state.draft_court = f"समक्ष: {court_type}\n\nवादी/अर्जदार: {petitioner}\nविरुद्ध\nप्रतिवादी: {respondent}\n\nविषय: कायदेशीर दाव्याचा/याचिकेचा प्राथमिक मसुदा व तथ्ये.\n\nप्रकरणाची पार्श्वभूमी व मुख्य मुद्दे:\n{matter}\n\nमागणी / प्रार्थना (Relief Claimed):\n१. वरील तथ्यांच्या आधारे वादीस योग्य तो कायदेशीर न्याय व भरपाई देण्यात यावी.\n२. प्रतिवादीस तात्काळ समज पत्र (Notice) जारी करण्यात यावे."
+            body = f"""
+            <strong>समक्ष: {court_type}</strong><br><br>
+            <strong>वादी / अर्जदार:</strong> {petitioner}<br>
+            <strong>विरुद्ध</strong><br>
+            <strong>प्रतिवादी:</strong> {respondent}<br><br>
+            <strong>विषय:</strong> कायदेशीर दाव्याचा / याचिकेचा प्राथमिक मसुदा व तथ्ये.<br><br>
+            <strong>प्रकरणाची पार्श्वभूमी व मुख्य मुद्दे:</strong><br>{matter}<br><br>
+            <strong>मागणी / प्रार्थना (Relief Claimed):</strong><br>
+            १. वरील तथ्यांच्या आधारे वादीस योग्य तो कायदेशीर न्याय व भरपाई देण्यात यावी.<br>
+            २. प्रतिवादीस तात्काळ समज पत्र (Notice) जारी करण्यात यावे.
+            """
+            pdf_code = create_official_a4_pdf("कोर्ट याचिका मसुदा", "कायदेशीर मसुदा नमुना", f"समक्ष: {court_type}", body, petitioner, address, mobile)
+            st.session_state.draft_court_text = f"समक्ष: {court_type}\nवादी: {petitioner}\nविरुद्ध\nप्रतिवादी: {respondent}\nमुद्दा: {matter}"
+            st.session_state.pdf_court = pdf_code
 
-    if 'draft_court' in st.session_state:
+    if 'draft_court_text' in st.session_state:
         st.success("कोर्ट याचिका मसुदा तयार झाला आहे!")
         st.subheader("📋 मसुदा पाहणी:")
-        st.text_area("", st.session_state.draft_court, height=250)
-        st.download_button("📥 A4 PDF कोर्ट मसुदा डाऊनलोड करा", data=create_a4_pdf_download("कायदेशीर याचिका मसुदा", st.session_state.draft_court), file_name="Court_Petition_Draft_A4.html", mime="text/html")
+        st.text_area("", st.session_state.draft_court_text, height=220)
+        st.download_button("📥 कोर्ट मसुदा (A4 PDF) डाऊनलोड करा", data=st.session_state.pdf_court, file_name="Court_Petition_Draft.html", mime="text/html")
 
 # (५) शासकीय तक्रार
 elif current_form == "complaint":
-    st.info("📣 शासकीय तक्रार निवारण अर्ज (केवळ २-३ शब्दांत अडचण लिहा)")
+    st.info("📣 शासकीय तक्रार निवारण अर्ज")
     with st.form("complaint_form"):
         dept = st.text_input("शासकीय विभाग / कार्यालय", placeholder="उदा. महानगरपालिका / पोलीस स्टेशन / महावितरण")
-        short_issue = st.text_input("तक्रारीचा विषय (केवळ २-३ शब्दांत)", placeholder="उदा. रस्त्यावरील खड्डे / लाईटचे बिल")
-        details = st.text_area("समस्येची थोडक्यात माहिती")
-        submitted_comp = st.form_submit_button("📣 पूर्ण तक्रार अर्ज तयार करा")
+        name = st.text_input("तक्रारदाराचे नाव", placeholder="तुमचे नाव")
+        address = st.text_area("तक्रारदाराचा पत्ता")
+        mobile = st.text_input("मोबाईल क्रमांक")
+        short_issue = st.text_input("तक्रारीचा विषय (केवळ २-३ शब्दांत)", placeholder="उदा. रस्त्यावरील खड्डे / कचरा समस्या")
+        details = st.text_area("समस्येची माहिती")
+        submitted_comp = st.form_submit_button("📣 शासकीय तक्रार अर्ज तयार करा")
         
         if submitted_comp:
-            st.session_state.draft_comp = f"प्रति,\nमा. विभाग प्रमुख / अधिकारी,\n{dept}\n\nविषय: {short_issue} बाबत तात्काळ शासकीय तक्रार व कारवाईबाबत.\n\nमहोदय,\n\nमी सतीश अशोक प्रधान, नागरिक राहणारे छत्रपती संभाजीनगर, या पत्राद्वारे आपल्या निदर्शनास आणून देतो की, माझ्या भागात खालीलप्रमाणे गंभीर समस्या निर्माण झाली आहे:\n\nतक्रारीचा तपशील:\n{details}\n\nतरी वरील समस्येचे गांभीर्य लक्षात घेऊन संबंधितांवर तात्काळ योग्य ती कारवाई करावी व मला केलेल्या कारवाईचा अहवाल पाठवावा."
+            body = f"""
+            <strong>प्रति,</strong><br>
+            मा. विभाग प्रमुख / अधिकारी,<br>
+            {dept}<br><br>
+            <strong>विषय:</strong> {short_issue} बाबत तात्काळ शासकीय तक्रार व कारवाईबाबत.<br><br>
+            <strong>महोदय,</strong><br><br>
+            मी {name}, नागरिक या पत्राद्वारे आपल्या निदर्शनास आणून देतो की, माझ्या भागात खालीलप्रमाणे गंभीर समस्या निर्माण झाली आहे:<br><br>
+            <strong>तक्रारीचा तपशील:</strong><br>{details}<br><br>
+            तरी वरील समस्येचे गांभीर्य लक्षात घेऊन संबंधितांवर तात्काळ योग्य ती कारवाई करावी व मला केलेल्या कारवाईचा अहवाल पाठवावा.
+            """
+            pdf_code = create_official_a4_pdf("शासकीय तक्रार अर्ज", "अधिकृत तक्रार नमुना", "शासकीय विभाग तक्रार निवारण पत्र", body, name, address, mobile)
+            st.session_state.draft_comp_text = f"प्रति, मा. अधिकारी, {dept}\nविषय: {short_issue}\nतक्रारदार: {name}\nतपशील: {details}"
+            st.session_state.pdf_comp = pdf_code
 
-    if 'draft_comp' in st.session_state:
-        st.success("शासकीय तक्रार अर्ज तयार झाला आहे!")
-        st.subheader("📋 तयार झालेला तक्रार अर्ज:")
-        st.text_area("", st.session_state.draft_comp, height=220)
-        st.download_button("📥 A4 PDF तक्रार अर्ज डाऊनलोड करा", data=create_a4_pdf_download("शासकीय तक्रार अर्ज", st.session_state.draft_comp), file_name="Govt_Complaint_A4.html", mime="text/html")
+    if 'draft_comp_text' in st.session_state:
+        st.success("तक्रार अर्ज तयार झाला आहे!")
+        st.subheader("📋 अर्जाचा मसुदा पाहणी:")
+        st.text_area("", st.session_state.draft_comp_text, height=220)
+        st.download_button("📥 तक्रार अर्ज (A4 PDF) डाऊनलोड करा", data=st.session_state.pdf_comp, file_name="Govt_Complaint.html", mime="text/html")
 
 # (६) ग्राहक मंच
 elif current_form == "consumer":
     st.info("🛒 ग्राहक मंच (Consumer Commission) संपूर्ण मार्गदर्शन व अर्ज मसुदा")
     st.markdown("""
-    **📌 प्राथमिक तयारी व कोर्ट अधिकार क्षेत्र (आर्थिक मर्यादेनुसार):**
-    * **जिल्हा आयोग (District Commission):** ₹१ कोटी रुपयांपर्यंतचे दावे.
-    * **राज्य आयोग (State Commission):** ₹१ कोटी ते ₹१० कोटी रुपयांपर्यंतचे दावे.
-    * **राष्ट्रीय आयोग (National Commission):** ₹१० कोटींपेक्षा जास्त रक्कमेचे दावे.
+    **📌 प्राथमिक तयारी व कोर्ट अधिकार क्षेत्र:**
+    * **जिल्हा आयोग:** ₹१ कोटी रुपयांपर्यंतचे दावे.
+    * **राज्य आयोग:** ₹१ कोटी ते ₹१० कोटी रुपयांपर्यंतचे दावे.
+    * **राष्ट्रीय आयोग:** ₹१० कोटींपेक्षा जास्त रक्कमेचे दावे.
     * **e-Daakhil पोर्टल:** ई-डाखील (`edaakhil.nic.in`) वर ऑनलाईन तक्रार दाखल करता येते.
     """)
     st.markdown("---")
     
     with st.form("consumer_form"):
-        st.subheader("📝 ग्राहक मंच तक्रार अर्ज मसुदा")
-        company = st.text_input("ज्या कंपनी/दुकानाची तक्रार आहे त्याचे नाव व पत्ता")
-        product = st.text_input("खरेदी केलेली वस्तू / घेतलेली सेवा", placeholder="उदा. मोबाईल / फ्रीज / विमा पॉलिसी")
+        name = st.text_input("तक्रारदाराचे नाव", placeholder="तुमचे नाव")
+        address = st.text_area("तक्रारदाराचा पत्ता")
+        mobile = st.text_input("मोबाईल क्रमांक")
+        company = st.text_input("सामनेवाला (ज्या कंपनी/दुकानाची तक्रार आहे)")
+        product = st.text_input("खरेदी केलेली वस्तू / घेतलेली सेवा")
         amount = st.text_input("फसवणुकीची किंवा नुकसानाची रक्कम (₹)")
         complaint_desc = st.text_area("काय फसवणूक किंवा सेवेत त्रुटी झाली?")
         submitted_cons = st.form_submit_button("🛒 ग्राहक मंच तक्रार मसुदा तयार करा")
         
         if submitted_cons:
-            st.session_state.draft_cons = f"समक्ष: मा. जिल्हा ग्राहक वाद निवारण आयोग\n\nतक्रारदार: सतीश अशोक प्रधान (मो. ८६६८२३५३९५)\nविरुद्ध\nसामनेवाला (विपक्षी): {company}\n\nतक्रारीचा अर्ज: ग्राहक संरक्षण कायदा २०१९ अन्वये.\n\n१. तक्रारदाराने सामनेवाला यांच्याकडून '{product}' ही वस्तू/सेवा खरेदी केली होती.\n२. नुकसानाची रक्कम: ₹ {amount}/-\n\n३. तक्रारीचे कारण व फसवणूक:\n{complaint_desc}\n\nमागणी:\nतक्रारदारास नुकसान भरपाईपोटी ₹ {amount}/- परत मिळावेत व मानसिक त्रासापोटी योग्य भरपाई मंजूर व्हावी."
+            body = f"""
+            <strong>समक्ष: मा. जिल्हा ग्राहक वाद निवारण आयोग</strong><br><br>
+            <strong>तक्रारदार:</strong> {name}<br>
+            <strong>विरुद्ध</strong><br>
+            <strong>सामनेवाला (विपक्षी):</strong> {company}<br><br>
+            <strong>तक्रारीचा अर्ज: ग्राहक संरक्षण कायदा २०१९ अन्वये.</strong><br><br>
+            १. तक्रारदाराने सामनेवाला यांच्याकडून '{product}' ही वस्तू/सेवा खरेदी केली होती.<br>
+            २. नुकसानाची रक्कम: ₹ {amount}/-<br><br>
+            <strong>३. तक्रारीचे कारण व फसवणूक:</strong><br>{complaint_desc}<br><br>
+            <strong>मागणी:</strong><br>तक्रारदारास नुकसान भरपाईपोटी ₹ {amount}/- परत मिळावेत व मानसिक त्रासापोटी योग्य भरपाई मंजूर व्हावी.
+            """
+            pdf_code = create_official_a4_pdf("ग्राहक मंच तक्रार अर्ज", "ग्राहक संरक्षण कायदा २०१९ अन्वये", "समक्ष: मा. जिल्हा ग्राहक वाद निवारण आयोग", body, name, address, mobile)
+            st.session_state.draft_cons_text = f"समक्ष: मा. जिल्हा ग्राहक वाद निवारण आयोग\nतक्रारदार: {name}\nविरुद्ध: {company}\nरक्कम: ₹ {amount}/-\nकारण: {complaint_desc}"
+            st.session_state.pdf_cons = pdf_code
 
-    if 'draft_cons' in st.session_state:
+    if 'draft_cons_text' in st.session_state:
         st.success("ग्राहक मंच तक्रार मसुदा तयार झाला आहे!")
         st.subheader("📋 मसुदा पाहणी:")
-        st.text_area("", st.session_state.draft_cons, height=220)
-        st.download_button("📥 A4 PDF ग्राहक मंच अर्ज डाऊनलोड करा", data=create_a4_pdf_download("ग्राहक मंच तक्रार अर्ज", st.session_state.draft_cons), file_name="Consumer_Complaint_A4.html", mime="text/html")
+        st.text_area("", st.session_state.draft_cons_text, height=220)
+        st.download_button("📥 ग्राहक मंच अर्ज (A4 PDF) डाऊनलोड करा", data=st.session_state.pdf_cons, file_name="Consumer_Complaint.html", mime="text/html")
 
-# (७) आरटीआय ऑनलाईन पोर्टल
+# (७) आरटीआय ऑनलाईन पोर्टल सहाय्य
 elif current_form == "rti_portal":
     st.info("🌐 आरटीआय ऑनलाईन पोर्टल मार्गदर्शन")
-    st.write("• **महाराष्ट्र आरटीआय पोर्टल:** १५० शब्दांची मर्यादा.")
-    st.write("• **केंद्रीय आरटीआय पोर्टल:** ५०० शब्दांची मर्यादा.")
+    st.write("• **महाराष्ट्र आरटीआय पोर्टल:** १५० शब्दांची मर्यादा व ₹१० शुल्क.")
+    st.write("• **केंद्रीय आरटीआय पोर्टल:** ५०० शब्दांची मर्यादा व ₹१० शुल्क.")
