@@ -3,9 +3,73 @@ from PIL import Image
 import google.generativeai as genai
 from gtts import gTTS
 import io
+import json
+import os
 
 # १. पेज कॉन्फिगरेशन
 st.set_page_config(page_title="आकांक्षा RTI AI", layout="wide")
+
+# ---------------------------------------------------------
+# PWA (Progressive Web App) ऑटोजेनरेशन कॉन्फिगरेशन
+# ---------------------------------------------------------
+manifest_data = {
+    "name": "आकांक्षा RTI AI ॲप",
+    "short_name": "RTI AI",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0f172a",
+    "theme_color": "#0f172a",
+    "icons": [
+        {
+            "src": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
+
+if not os.path.exists("manifest.json"):
+    with open("manifest.json", "w", encoding="utf-8") as f:
+        json.dump(manifest_data, f, ensure_ascii=False)
+
+if not os.path.exists("sw.js"):
+    with open("sw.js", "w", encoding="utf-8") as f:
+        f.write("""
+        self.addEventListener('install', (e) => {
+          e.waitUntil(
+            caches.open('rti-ai-store').then((cache) => {
+              return cache.addAll(['/']);
+            })
+          );
+        });
+        self.addEventListener('fetch', (e) => {
+          e.respondWith(
+            caches.match(e.request).then((response) => {
+              return response || fetch(e.request);
+            })
+          );
+        });
+        """)
+
+# ब्राउझरला हे ॲप इन्स्टॉल करण्यासाठी सांगणारे HTML टॅग्ज
+pwa_header = """
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0f172a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then((reg) => { console.log('Service Worker registered!', reg); })
+        .catch((err) => { console.log('Service Worker registration failed:', err); });
+    });
+  }
+</script>
+"""
+st.markdown(pwa_header, unsafe_allow_html=True)
+# ---------------------------------------------------------
 
 # २. निवडलेला फॉर्म ट्रॅक करणे
 query_params = st.query_params
@@ -275,33 +339,27 @@ elif current_form == "second_appeal":
 elif current_form == "ai_chat":
     st.info("✨ आकांक्षा AI चॅट असिस्टंट - RTI, कायदेशीर व शासकीय कामांसाठी मोफत AI मदत व ऑडिओ ऐका")
 
-    # १. Secrets मधून API Key घेणे
     GEMINI_API_KEY = st.secrets.get("GEMINI_API_KEY", "")
-    
     if GEMINI_API_KEY:
         genai.configure(api_key=GEMINI_API_KEY)
     else:
         st.warning("⚠️ कृपया Streamlit Secrets मध्ये GEMINI_API_KEY जोडा.")
 
-    # २. चॅट मेमरी
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
 
-    # ३. फोटो / कागदपत्र अपलोडर
     uploaded_file = st.file_uploader("📷 शासकीय पत्र किंवा कागदपत्राचा फोटो अपलोड करा (ऐच्छिक):", type=["jpg", "jpeg", "png"])
     image_data = None
     if uploaded_file:
         image_data = Image.open(uploaded_file)
         st.image(image_data, caption="अपलोड केलेले कागदपत्र", width=250)
 
-    # ४. जुने संभाषण आणि ऑडिओ दाखवणे
     for message in st.session_state.chat_history:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
             if message["role"] == "assistant" and "audio_data" in message:
                 st.audio(message["audio_data"], format="audio/mp3")
 
-    # ५. प्रश्न उत्तर जनरेशन व ऑडिओ तयार करणे
     if user_input := st.chat_input("तुमचा प्रश्न किंवा अडचण येथे लिहा..."):
         st.chat_message("user").markdown(user_input)
         st.session_state.chat_history.append({"role": "user", "content": user_input})
@@ -343,7 +401,6 @@ elif current_form == "ai_chat":
                 if response_text:
                     st.markdown(response_text)
                     
-                    # 🔊 ऑडिओ (Text-to-Speech) तयार करणे
                     try:
                         tts = gTTS(text=response_text, lang='mr', slow=False)
                         audio_fp = io.BytesIO()
@@ -383,7 +440,7 @@ elif current_form == "court":
             <strong>विषय:</strong> कायदेशीर दाव्याचा / याचिकेचा प्राथमिक मसुदा व तथ्ये.<br><br>
             <strong>प्रकरणाची पार्श्वभूमी व मुख्य मुद्दे:</strong><br>{matter}<br><br>
             <strong>मागणी / प्रार्थना (Relief Claimed):</strong><br>
-            १. वरील तथ्यांच्या आधारे वादीस योग्य то कायदेशीर न्याय व भरपाई देण्यात यावी.<br>
+            १. वरील तथ्यांच्या आधारे वादीस योग्य तो कायदेशीर न्याय व भरपाई देण्यात यावी.<br>
             २. प्रतिवादीस तात्काळ समज पत्र (Notice) जारी करण्यात यावे.
             """
             pdf_code = create_official_a4_pdf("कोर्ट याचिका मसुदा", "कायदेशीर मसुदा नमुना", f"समक्ष: {court_type}", body, petitioner, address, mobile)
