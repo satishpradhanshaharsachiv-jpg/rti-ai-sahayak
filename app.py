@@ -269,11 +269,11 @@ elif current_form == "second_appeal":
         st.text_area("", st.session_state.draft_c_text, height=220)
         st.download_button("📥 जोडपत्र 'क' (A4 PDF) डाऊनलोड करा", data=st.session_state.pdf_c, file_name="Jodpatra_C_Second_Appeal.html", mime="text/html")
 
-# (४) AI चॅट (नवीन AQ API Key व सर्व लेटेस्ट वर्जन्स सपोर्ट)
+# (४) AI चॅट (ChatGPT / Gemini मॉडेल + ऑटो-फॉलबॅक)
 elif current_form == "ai_chat":
     st.info("✨ आकांक्षा AI चॅट असिस्टंट - RTI, कायदेशीर व शासकीय कामांसाठी मोफत AI मदत")
 
-    # १. Secrets मधून API Key घेणे (AQ... फॉरमॅट समर्थित)
+    # १. Secrets मधून API Key घेणे (AQ... आणि AIza... दोन्ही प्रकारच्या की चालतात)
     GEMINI_API_KEY = st.secrets.get("GEMINI_API_KEY", "")
     
     if GEMINI_API_KEY:
@@ -281,18 +281,18 @@ elif current_form == "ai_chat":
     else:
         st.warning("⚠️ कृपया Streamlit Secrets मध्ये GEMINI_API_KEY जोडा.")
 
-    # २. मॉडेल निवड ड्रॉपडाऊन (नवीन वर्जन्सची यादी)
+    # २. मॉडेल निवड ड्रॉपडाऊन
     col_m1, col_m2 = st.columns([2, 1])
     with col_m1:
-        st.caption("🤖 उपलब्ध AI मॉडेल्स: नवीन व्हर्जन समर्थित")
+        st.caption("🤖 उपलब्ध AI मॉडेल्स: नवीन व लेटेस्ट वर्जन्स समर्थित")
     with col_m2:
         selected_model = st.selectbox(
             "AI मॉडेल निवडा:",
             [
+                "gemini-2.0-flash",
                 "gemini-3.5-lite",
                 "gemini-3.6-flash",
                 "gemini-3.1-pro",
-                "gemini-2.0-flash",
                 "gemini-2.5-flash",
                 "gemini-2.0-flash-lite",
                 "gemini-1.5-flash",
@@ -300,7 +300,7 @@ elif current_form == "ai_chat":
             ]
         )
 
-    # ३. चॅट इतिहास (Memory)
+    # ३. चॅट मेमरी
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = []
 
@@ -316,7 +316,7 @@ elif current_form == "ai_chat":
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-    # ६. इनपुट व उत्तर जनरेशन
+    # ६. प्रश्न उत्तर जनरेशन (स्मार्ट फॉलबॅकसह - 404 एरर रोखण्यासाठी)
     if user_input := st.chat_input("तुमचा प्रश्न किंवा अडचण येथे लिहा..."):
         st.chat_message("user").markdown(user_input)
         st.session_state.chat_history.append({"role": "user", "content": user_input})
@@ -328,20 +328,34 @@ elif current_form == "ai_chat":
         """
 
         with st.chat_message("assistant"):
-            with st.spinner("AI विचार करत आहे..."):
-                try:
-                    model = genai.GenerativeModel(selected_model)
-                    if image_data:
-                        response = model.generate_content([system_prompt, user_input, image_data])
-                    else:
-                        response = model.generate_content(f"{system_prompt}\n\nयुझर प्रश्न: {user_input}")
+            with st.spinner("AI विचार करत आहे व उत्तर तयार करत आहे..."):
+                # निवडलेले नाव प्रथम ट्राय होईल, 404 किंवा इतर एरर आल्यास सुरक्षित मॉडेल्सवरून लगेच उत्तर मिळेल
+                models_to_try = [selected_model, "gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"]
+                models_to_try = list(dict.fromkeys(models_to_try))
+
+                response_text = None
+                last_error = ""
+
+                for m_name in models_to_try:
+                    try:
+                        model = genai.GenerativeModel(m_name)
+                        if image_data:
+                            response = model.generate_content([system_prompt, user_input, image_data])
+                        else:
+                            response = model.generate_content(f"{system_prompt}\n\nयुझर प्रश्न: {user_input}")
                         
-                    if response and response.text:
-                        st.markdown(response.text)
-                        st.session_state.chat_history.append({"role": "assistant", "content": response.text})
-                except Exception as e:
-                    # सर्व्हरकडून येणारा खरा एरर मेसेज थेट स्क्रीनवर दाखवला जाईल
-                    st.error(f"❌ Google API रिस्पॉन्स एरर: {str(e)}")
+                        if response and response.text:
+                            response_text = response.text
+                            break
+                    except Exception as err:
+                        last_error = str(err)
+                        continue
+
+                if response_text:
+                    st.markdown(response_text)
+                    st.session_state.chat_history.append({"role": "assistant", "content": response_text})
+                else:
+                    st.error(f"❌ API एरर: {last_error}")
 
 # (५) कोर्ट याचिका
 elif current_form == "court":
