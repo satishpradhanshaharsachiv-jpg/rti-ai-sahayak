@@ -1,7 +1,7 @@
-import google.generativeai as genai
-from gtts import gTTS
 import io
 from PIL import Image
+import google.generativeai as genai
+from gtts import gTTS
 import streamlit as st
 
 # १. पेज कॉन्फिगरेशन
@@ -150,7 +150,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ६. हेडर बॅनर आणि ३D बटणे (इथे #form-section जोडले आहे जेणेकरून क्लिक केल्यावर पेज खाली सरकेल)
+# ६. हेडर बॅनर आणि ३D बटणे
 full_app_html = """
 <div class="header-card">
     <div class="header-title">✨ आकांक्षा एंटरप्राईजेस RTI AI ॲप कायदेशीर सहाय्य ✨</div>
@@ -172,15 +172,10 @@ full_app_html = """
 """
 st.markdown(full_app_html, unsafe_allow_html=True)
 
-# ---------------------------------------------------------
 # ७. ऑटो-स्क्रोलसाठी टार्गेट पोझिशन (Anchor Point)
-# ---------------------------------------------------------
 st.markdown('<div id="form-section"></div>', unsafe_allow_html=True)
 
-# ---------------------------------------------------------
 # ८. फॉर्म्स व AI चॅट ऑपरेशन्स
-# ---------------------------------------------------------
-
 if current_form == "jodpatra_a":
   st.info("📋 जोडपत्र 'अ' - माहितीचा अधिकार अधिनियम, २००५ अन्वये अर्ज (नियम ३)")
   with st.form("form_a"):
@@ -375,20 +370,28 @@ elif current_form == "ai_chat":
   if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-  # १. फाईल अपलोडर
+  # १. फाईल अपलोडर (JPG, PNG आणि PDF सह)
   uploaded_file = st.file_uploader(
-      "📷 शासकीय पत्र, फोटो किंवा कागदपत्र अपलोड करा:",
-      type=["jpg", "jpeg", "png"],
+      "📷 शासकीय पत्र, फोटो किंवा PDF अपलोड करा:",
+      type=["jpg", "jpeg", "png", "pdf"],
   )
   image_data = None
-  if uploaded_file:
-    image_data = Image.open(uploaded_file)
-    st.image(image_data, caption="अपलोड केलेले कागदपत्र", width=250)
+  pdf_data = None
 
-    # फोटो टाकताच त्वरित विश्लेषण करणारे बटण
-    if st.button("🚀 फोटोवरील मजकूर वाचा आणि त्वरित विश्लेषण करा"):
-      with st.spinner("AI कागदपत्र वाचत आहे आणि उत्तर तयार करत आहे..."):
-        # नवीन आणि तुमची सुचवलेली सर्व मॉडेल्स एकत्र
+  if uploaded_file:
+    if uploaded_file.type == "application/pdf":
+      pdf_data = {
+          "mime_type": "application/pdf",
+          "data": uploaded_file.getvalue(),
+      }
+      st.success("📄 PDF फाईल जोडली गेली आहे.")
+    else:
+      image_data = Image.open(uploaded_file)
+      st.image(image_data, caption="अपलोड केलेले कागदपत्र", width=250)
+
+    # फाईल टाकताच त्वरित विश्लेषण करणारे बटण
+    if st.button("🚀 अपलोड केलेल्या फाईलचे त्वरित विश्लेषण करा"):
+      with st.spinner("AI फाईल वाचत आहे आणि उत्तर तयार करत आहे..."):
         auto_models = [
             "gemini-2.5-flash",
             "gemini-3.7-flash",
@@ -408,15 +411,21 @@ elif current_form == "ai_chat":
                 ग्राहक संरक्षण कायदा, शासकीय तक्रारी, कोर्ट मसुदा आणि कायदेशीर बाबींवर सोप्या व अचूक मराठीत मार्गदर्शन करणे आहे.
                 """
 
-        img_prompt = [
-            system_prompt,
-            "खालील फोटो/कागदपत्रावर जो मजकूर (Text) लिहिला आहे, तो वाचा. या पत्राचा विषय काय आहे, तो कोणाकडून आणि कोणाला आहे, आणि यावर कायदेशीर किंवा शासकीय कारवाई काय करता येईल ते मराठीत सविस्तर सांगा.",
-        ]
+        file_prompt = (
+            system_prompt
+            + "\n\nखालील कागदपत्र/फोटोवर जो मजकूर आहे तो वाचा. या पत्राचा विषय"
+            " काय आहे, तो कोणाकडून आणि कोणाला आहे, आणि यावर कायदेशीर किंवा"
+            " शासकीय कारवाई काय करता येईल ते मराठीत सविस्तर सांगा."
+        )
 
         for m_name in auto_models:
           try:
             model = genai.GenerativeModel(m_name)
-            response = model.generate_content(img_prompt + [image_data])
+            if pdf_data:
+              response = model.generate_content([file_prompt, pdf_data])
+            elif image_data:
+              response = model.generate_content([file_prompt, image_data])
+
             if response and response.text:
               response_text = response.text
               break
@@ -435,7 +444,7 @@ elif current_form == "ai_chat":
             st.session_state.chat_history.append({
                 "role": "user",
                 "content": (
-                    "📷 [फोटो अपलोड करून मजकूर वाचण्याची मागणी केली]"
+                    "📷 [फाईल अपलोड करून मजकूर वाचण्याची मागणी केली]"
                 ),
             })
             st.session_state.chat_history.append({
@@ -489,7 +498,11 @@ elif current_form == "ai_chat":
         for m_name in auto_models:
           try:
             model = genai.GenerativeModel(m_name)
-            if image_data:
+            if pdf_data:
+              response = model.generate_content(
+                  [system_prompt, user_input, pdf_data]
+              )
+            elif image_data:
               response = model.generate_content(
                   [system_prompt, user_input, image_data]
               )
@@ -712,7 +725,7 @@ elif current_form == "consumer":
     )
 
 # ---------------------------------------------------------
-# ९. सोशियल मीडिया शेअर ड्रॉपडाउन
+# ९. सोशल मीडिया शेअर ड्रॉपडाउन
 # ---------------------------------------------------------
 st.markdown("---")
 
@@ -791,8 +804,11 @@ single_share_code = f"""
     </div>
 </details>
 """
+
+st.markdown(single_share_code, unsafe_allow_html=True)
+
 # ---------------------------------------------------------
-# १०. AI च्या अष्टपैलू क्षमता (Drop-down Features Box - Fixed)
+# १०. AI च्या अष्टपैलू क्षमता (Drop-down Features Box)
 # ---------------------------------------------------------
 
 ai_all_features_html = """
@@ -930,6 +946,3 @@ ai_all_features_html = """
 """
 
 st.markdown(ai_all_features_html, unsafe_allow_html=True)
-
-[st.markdown(single_share_code, unsafe_allow_html=True)]
-
