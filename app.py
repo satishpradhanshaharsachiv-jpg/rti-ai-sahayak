@@ -1,4 +1,6 @@
 import streamlit as st
+from PIL import Image
+import google.generativeai as genai
 
 # १. पेज कॉन्फिगरेशन
 st.set_page_config(page_title="आकांक्षा RTI AI", layout="wide")
@@ -79,7 +81,7 @@ def create_official_a4_pdf(title_header, rule_text, main_title, body_content, ap
     """
     return html_code
 
-# ४. ३D डिझाईन आणि रंगांसाठी CSS (होम पेजची रचना न बदलता)
+# ४. ३D डिझाईन आणि रंगांसाठी CSS
 st.markdown("""
 <style>
 .header-card {
@@ -147,7 +149,7 @@ full_app_html = """
 st.markdown(full_app_html, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# ६. शासकीय फॉरमॅटनुसार अर्ज फॉर्म्स व डाऊनलोड
+# ६. फॉर्म्स व AI चॅट ऑपरेशन्स
 # ---------------------------------------------------------
 
 # (१) जोडपत्र 'अ' (माहिती अर्ज)
@@ -267,7 +269,101 @@ elif current_form == "second_appeal":
         st.text_area("", st.session_state.draft_c_text, height=220)
         st.download_button("📥 जोडपत्र 'क' (A4 PDF) डाऊनलोड करा", data=st.session_state.pdf_c, file_name="Jodpatra_C_Second_Appeal.html", mime="text/html")
 
-# (४) कोर्ट याचिका
+# (४) AI चॅट (ChatGPT / Gemini मॉडेल + AQ API Key सपोर्ट)
+elif current_form == "ai_chat":
+    st.info("✨ आकांक्षा AI चॅट असिस्टंट - RTI, कायदेशीर व शासकीय कामांसाठी मोफत AI मदत")
+
+    # १. API Key कॉन्फिगर करा (तुमची AQ... ने सुरू होणारी की येथे प्रविष्ट करा)
+    GEMINI_API_KEY = st.secrets.get("GEMINI_API_KEY", "तुमची_AQ_ने_सुरु_होणारी_API_KEY_येथे_टाका")
+    
+    if GEMINI_API_KEY and GEMINI_API_KEY != "तुमची_AQ_ने_सुरु_होणारी_API_KEY_येथे_टाका":
+        genai.configure(api_key=GEMINI_API_KEY)
+    else:
+        st.warning("⚠️ कृपया कोडमध्ये तुमची Gemini API Key प्रविष्ट करा.")
+
+    # २. मॉडेल निवड ड्रॉपडाऊन (नवीन व जुन्या सर्व वर्जन्सची सपोर्टेड लिस्ट)
+    col_m1, col_m2 = st.columns([2, 1])
+    with col_m1:
+        st.caption("🤖 उपलब्ध AI मॉडेल्स: लेटेस्ट Flash, Pro व Lite वर्जन्स समर्थित")
+    with col_m2:
+        selected_model = st.selectbox(
+            "AI मॉडेल निवडा:",
+            [
+                "gemini-2.0-flash",
+                "gemini-2.5-flash",
+                "gemini-2.0-flash-lite",
+                "gemini-3.5-lite",
+                "gemini-3.6-flash",
+                "gemini-3.1-pro",
+                "gemini-1.5-flash",
+                "gemini-1.5-pro"
+            ]
+        )
+
+    # ३. चॅट मेमरी (History)
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = []
+
+    # ४. फोटो / कागदपत्र अपलोडर
+    uploaded_file = st.file_uploader("📷 शासकीय पत्र, नोटीस किंवा कागदपत्राचा फोटो अपलोड करा (ऐच्छिक):", type=["jpg", "jpeg", "png"])
+    image_data = None
+    if uploaded_file:
+        image_data = Image.open(uploaded_file)
+        st.image(image_data, caption="अपलोड केलेले कागदपत्र", width=250)
+
+    # ५. जुने मेसेज दाखवणे
+    for message in st.session_state.chat_history:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+    # ६. प्रश्न आणि AI उत्तर जनरेशन
+    if user_input := st.chat_input("तुमचा प्रश्न किंवा अडचण येथे लिहा..."):
+        st.chat_message("user").markdown(user_input)
+        st.session_state.chat_history.append({"role": "user", "content": user_input})
+
+        system_prompt = """
+        तू 'आकांक्षा RTI व कायदेशीर AI असिस्टंट' आहेस. 
+        तुझे काम भारतातील व महाराष्ट्रातील नागरिकांना माहिती अधिकार अधिनियम (RTI 2005), 
+        ग्राहक संरक्षण कायदा, शासकीय तक्रारी, कोर्ट मसुदा आणि कायदेशीर बाबींवर सोप्या व अचूक मराठीत मार्गदर्शन करणे आहे.
+        """
+
+        with st.chat_message("assistant"):
+            with st.spinner("AI विचार करत आहे व उत्तर तयार करत आहे..."):
+                response_text = ""
+                
+                # ऑटो-फॉलबॅक लिस्ट (एक मॉडेल व्यस्त असल्यास दुसरे ऑटोमॅटिक वापरले जाईल)
+                fallback_models = [
+                    selected_model,
+                    "gemini-2.0-flash",
+                    "gemini-2.5-flash",
+                    "gemini-2.0-flash-lite",
+                    "gemini-1.5-flash",
+                    "gemini-1.5-pro"
+                ]
+                
+                unique_models = list(dict.fromkeys(fallback_models))
+                
+                for model_name in unique_models:
+                    try:
+                        model = genai.GenerativeModel(model_name)
+                        if image_data:
+                            response = model.generate_content([system_prompt, user_input, image_data])
+                        else:
+                            response = model.generate_content(f"{system_prompt}\n\nयुझर प्रश्न: {user_input}")
+                            
+                        if response and response.text:
+                            response_text = response.text
+                            break
+                    except Exception:
+                        continue
+                
+                if response_text:
+                    st.markdown(response_text)
+                    st.session_state.chat_history.append({"role": "assistant", "content": response_text})
+                else:
+                    st.error("❌ API Key तपासा किंवा काही वेळेनंतर पुन्हा प्रयत्न करा.")
+
+# (५) कोर्ट याचिका
 elif current_form == "court":
     st.info("📜 कोर्ट याचिका / लीगल ब्रीफ (वकिलांसाठी मसुदा)")
     with st.form("court_form"):
@@ -301,7 +397,7 @@ elif current_form == "court":
         st.text_area("", st.session_state.draft_court_text, height=220)
         st.download_button("📥 कोर्ट मसुदा (A4 PDF) डाऊनलोड करा", data=st.session_state.pdf_court, file_name="Court_Petition_Draft.html", mime="text/html")
 
-# (५) शासकीय तक्रार
+# (६) शासकीय तक्रार
 elif current_form == "complaint":
     st.info("📣 शासकीय तक्रार निवारण अर्ज")
     with st.form("complaint_form"):
@@ -334,7 +430,13 @@ elif current_form == "complaint":
         st.text_area("", st.session_state.draft_comp_text, height=220)
         st.download_button("📥 तक्रार अर्ज (A4 PDF) डाऊनलोड करा", data=st.session_state.pdf_comp, file_name="Govt_Complaint.html", mime="text/html")
 
-# (६) ग्राहक मंच
+# (७) आरटीआय ऑनलाईन पोर्टल सहाय्य
+elif current_form == "rti_portal":
+    st.info("🌐 आरटीआय ऑनलाईन पोर्टल मार्गदर्शन")
+    st.write("• **महाराष्ट्र आरटीआय पोर्टल:** १५० शब्दांची मर्यादा व ₹१० शुल्क.")
+    st.write("• **केंद्रीय आरटीआय पोर्टल:** ५०० शब्दांची मर्यादा व ₹१० शुल्क.")
+
+# (८) ग्राहक मंच
 elif current_form == "consumer":
     st.info("🛒 ग्राहक मंच (Consumer Commission) संपूर्ण मार्गदर्शन व अर्ज मसुदा")
     st.markdown("""
@@ -377,9 +479,3 @@ elif current_form == "consumer":
         st.subheader("📋 मसुदा पाहणी:")
         st.text_area("", st.session_state.draft_cons_text, height=220)
         st.download_button("📥 ग्राहक मंच अर्ज (A4 PDF) डाऊनलोड करा", data=st.session_state.pdf_cons, file_name="Consumer_Complaint.html", mime="text/html")
-
-# (७) आरटीआय ऑनलाईन पोर्टल सहाय्य
-elif current_form == "rti_portal":
-    st.info("🌐 आरटीआय ऑनलाईन पोर्टल मार्गदर्शन")
-    st.write("• **महाराष्ट्र आरटीआय पोर्टल:** १५० शब्दांची मर्यादा व ₹१० शुल्क.")
-    st.write("• **केंद्रीय आरटीआय पोर्टल:** ५०० शब्दांची मर्यादा व ₹१० शुल्क.")
