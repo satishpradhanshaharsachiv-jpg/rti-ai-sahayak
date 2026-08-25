@@ -2,43 +2,107 @@ import streamlit as st
 import google.generativeai as genai
 
 # ==========================================
-# १. पेज सेटअप आणि मूळ Grid डिझाईन (Original CSS)
+# १. ३D आणि सतत रंग बदलणारे CSS डिझाईन
 # ==========================================
 st.set_page_config(page_title="RTI AI महा-सहाय्यक", page_icon="⚖️", layout="wide")
 
 st.markdown("""
 <style>
-    /* मूळ आकर्षक 2-Column Grid Layout */
+    /* १. बॅनरसाठी रंग बदलणारे ॲनिमेशन (Animated Gradient) */
+    @keyframes bannerGlow {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* २. बटनांसाठी ॲनिमेटेड ग्रेडियंट्स */
+    @keyframes btnGlow1 { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+    
+    /* मुख्य बॅनर (३D लुक + गोल्डन बॉर्डर + रंग बदलणारा बॅकग्राउंड) */
+    .custom-header-banner {
+        background: linear-gradient(-45deg, #1e3c72, #2a5298, #0f2027, #203a43, #2c5364);
+        background-size: 400% 400%;
+        animation: bannerGlow 10s ease infinite;
+        border: 2px solid #ffd700;
+        border-radius: 20px;
+        padding: 20px 15px;
+        text-align: center;
+        color: white;
+        box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.4), inset 0px 2px 5px rgba(255, 255, 255, 0.3);
+        margin-bottom: 25px;
+    }
+    
+    .banner-title {
+        font-size: 20px;
+        font-weight: 800;
+        color: #ffde59;
+        text-shadow: 1px 2px 4px rgba(0,0,0,0.8);
+        margin-bottom: 8px;
+    }
+    .banner-subtitle {
+        font-size: 13px;
+        color: #ff9999;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+    .banner-footer {
+        border-top: 1px dashed rgba(255,255,255,0.3);
+        padding-top: 10px;
+        font-size: 14px;
+        color: #e0e0e0;
+        font-weight: 600;
+    }
+
+    /* ३D ग्रिड लेआउट */
     .grid-container {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 12px;
+        gap: 15px;
         max-width: 500px;
-        margin: 0 auto 20px auto;
+        margin: 0 auto 25px auto;
     }
-    .grid-btn {
-        padding: 14px 10px;
-        border-radius: 12px;
+
+    /* ३D बटनांचे डिझाईन (3D Shadow + Animated Gradient Colors) */
+    .grid-btn-3d {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 18px 10px;
+        border-radius: 16px;
         color: white !important;
-        font-weight: bold;
+        font-weight: 700;
         text-decoration: none !important;
         text-align: center;
         font-size: 15px;
-        box-shadow: 0px 4px 8px rgba(0,0,0,0.15);
-        display: block;
+        background-size: 300% 300%;
+        animation: btnGlow1 6s ease infinite;
+        box-shadow: 0px 6px 0px rgba(0,0,0,0.3), 0px 8px 15px rgba(0,0,0,0.3);
+        transition: all 0.2s ease;
+        border: 1px solid rgba(255,255,255,0.2);
     }
-    .bg-green { background-color: #28a745; }
-    .bg-orange { background-color: #fd7e14; }
-    .bg-blue { background-color: #0056b3; }
-    .bg-cyan { background-color: #17a2b8; }
-    .bg-purple { background-color: #6f42c1; }
-    .bg-red { background-color: #dc3545; }
-    .bg-gold { background-color: #ffc107; color: #000 !important; }
-    .bg-darkcyan { background-color: #117a8b; }
+    
+    .grid-btn-3d:active {
+        transform: translateY(4px);
+        box-shadow: 0px 2px 0px rgba(0,0,0,0.3), 0px 4px 8px rgba(0,0,0,0.3);
+    }
+
+    /* प्रत्येक बटनाचा स्वतंत्र रंग बदलणारा (Changing Color) शेड */
+    .btn-col-1 { background-image: linear-gradient(135deg, #11998e, #38ef7d, #00b09b, #96c93d); }
+    .btn-col-2 { background-image: linear-gradient(135deg, #ff416c, #ff4b2b, #ff0844, #ffb199); }
+    .btn-col-3 { background-image: linear-gradient(135deg, #1f4037, #99f2c8, #005c97, #363795); }
+    .btn-col-4 { background-image: linear-gradient(135deg, #00c6ff, #0072ff, #00d2ff, #3a7bd5); }
+    .btn-col-5 { background-image: linear-gradient(135deg, #8e2de2, #4a00e0, #654ea3, #eaafc8); }
+    .btn-col-6 { background-image: linear-gradient(135deg, #d31027, #ea384d, #e52d27, #b31217); }
+    .btn-col-7 { background-image: linear-gradient(135deg, #f857a6, #ff5858, #f7b733, #fc4a1a); color: #000 !important; }
+    .btn-col-8 { background-image: linear-gradient(135deg, #00b4db, #0083b0, #136a8a, #267871); }
+
+    .btn-icon {
+        font-size: 22px;
+        margin-bottom: 4px;
+    }
 </style>
 """, unsafe_allow_html=True)
-
-st.title("⚖️ AI कायदेशीर व RTI सल्लागार")
 
 # ==========================================
 # २. API KEY कॉन्फिगरेशन
@@ -54,34 +118,63 @@ UNIVERSAL_SYSTEM_PROMPT = """
 तुमचे काम विचारलेल्या प्रश्नाला सोप्या, अचूक आणि उपयुक्त मराठी भाषेत उत्तरे देणे आहे.
 """
 
-# query_params द्वारे फॉर्म निवडणे
 query_params = st.query_params
 current_form = query_params.get("form", "jodpatra_a")
 
 # ==========================================
-# ३. मूळ फोटोसारखी ८ बटनांची Grid रचना
+# ३. ३D ॲनिमेटेड बॅनर
 # ==========================================
-original_grid_html = """
-<div class="grid-container">
-    <a href="?form=jodpatra_a#form-section" target="_self" class="grid-btn bg-green">📄 जोडपत्र 'अ'</a>
-    <a href="?form=first_appeal#form-section" target="_self" class="grid-btn bg-orange">⚖️ प्रथम अपील</a>
-    <a href="?form=second_appeal#form-section" target="_self" class="grid-btn bg-blue">🏛️ द्वितीय अपील</a>
-    <a href="?form=ai_chat#form-section" target="_self" class="grid-btn bg-cyan">✨ AI चॅट</a>
-    <a href="?form=court#form-section" target="_self" class="grid-btn bg-purple">📜 कोर्ट याचिका</a>
-    <a href="?form=complaint#form-section" target="_self" class="grid-btn bg-red">📢 शासकीय तक्रार</a>
-    <a href="?form=rti_portal#form-section" target="_self" class="grid-btn bg-gold">🌐 RTI पोर्टल</a>
-    <a href="?form=consumer#form-section" target="_self" class="grid-btn bg-darkcyan">🛒 ग्राहक मंच</a>
+banner_html = """
+<div class="custom-header-banner">
+    <div class="banner-title">✨ आकांक्षा इंटरप्राईजेस RTI AI ॲप कायदेशीर सहाय्य ✨</div>
+    <div class="banner-subtitle">⚡ घरबसल्या RTI अर्ज व शासकीय तक्रार एका सेकंदात A4 साईज मध्ये मोफत मिळवा ⚡</div>
+    <div class="banner-footer">
+        👤 सतीश अशोक प्रधान | 📱 मो. ८६६८२३५३९५
+    </div>
 </div>
 """
-st.markdown(original_grid_html, unsafe_allow_html=True)
+st.markdown(banner_html, unsafe_allow_html=True)
+
+# ==========================================
+# ४. ३D ॲनिमेटेड ग्रिड बटने
+# ==========================================
+grid_buttons_html = """
+<div class="grid-container">
+    <a href="?form=jodpatra_a#form-section" target="_self" class="grid-btn-3d btn-col-1">
+        <span class="btn-icon">📄</span> जोडपत्र 'अ'
+    </a>
+    <a href="?form=first_appeal#form-section" target="_self" class="grid-btn-3d btn-col-2">
+        <span class="btn-icon">⚖️</span> प्रथम अपील
+    </a>
+    <a href="?form=second_appeal#form-section" target="_self" class="grid-btn-3d btn-col-3">
+        <span class="btn-icon">🏛️</span> माहिती आयोग
+    </a>
+    <a href="?form=ai_chat#form-section" target="_self" class="grid-btn-3d btn-col-4">
+        <span class="btn-icon">✨</span> AI चॅट
+    </a>
+    <a href="?form=court#form-section" target="_self" class="grid-btn-3d btn-col-5">
+        <span class="btn-icon">📜</span> कोर्ट याचिका
+    </a>
+    <a href="?form=complaint#form-section" target="_self" class="grid-btn-3d btn-col-6">
+        <span class="btn-icon">📢</span> शासकीय तक्रार
+    </a>
+    <a href="?form=rti_portal#form-section" target="_self" class="grid-btn-3d btn-col-7">
+        <span class="btn-icon">🌐</span> आरटीआय ऑनलाईन पोर्टल सहाय्य
+    </a>
+    <a href="?form=consumer#form-section" target="_self" class="grid-btn-3d btn-col-8">
+        <span class="btn-icon">🛒</span> ग्राहक मंच
+    </a>
+</div>
+"""
+st.markdown(grid_buttons_html, unsafe_allow_html=True)
 st.markdown('<div id="form-section"></div>', unsafe_allow_html=True)
 
 # ==========================================
-# ४. कायदेशीर फॉर्म्सचे लॉजिक
+# ५. कायदेशीर फॉर्म्स
 # ==========================================
 
 if current_form == "jodpatra_a":
-    st.info("📄 जोडपत्र 'अ' - माहितीचा अधिकार अधिनियम, २००५ अन्वये अर्ज (नियम ३)")
+    st.info("📋 जोडपत्र 'अ' - माहितीचा अधिकार अधिनियम, २००५ अन्वये अर्ज (नियम ३)")
     with st.form("form_a"):
         karyalay = st.text_input("जन माहिती अधिकाऱ्याच्या कार्यालयाचे नाव व पत्ता")
         name = st.text_input("अर्जदाराचे संपूर्ण नाव", placeholder="तुमचे पूर्ण नाव")
@@ -192,7 +285,7 @@ elif current_form == "consumer":
         st.text_area("मसुदा पाहणी:", st.session_state.draft_cons_text, height=200)
 
 # ==========================================
-# ५. सोशली शेअर पर्याय
+# ६. सोशली शेअर पर्याय
 # ==========================================
 st.markdown("---")
 app_link = "https://rti-ai-app-eydmnrwsnhwwhmryv7nn4v.streamlit.app/?v=3"
@@ -221,7 +314,7 @@ single_share_code = f"""
 st.markdown(single_share_code, unsafe_allow_html=True)
 
 # ==========================================
-# ६. अपडेटेड AI चॅट (नवीन मॉडेल्ससह शेवटी)
+# ७. AI चॅट लॉजिक (ऑटो-मॉडेल स्वॅपिंग)
 # ==========================================
 st.subheader("💬 AI कायदेशीर मदत व चॅट बॉक्स")
 
