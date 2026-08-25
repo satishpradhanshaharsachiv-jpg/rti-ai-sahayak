@@ -1,751 +1,295 @@
-import io
-from PIL import Image
+import streamlit as st
 import google.generativeai as genai
 from gtts import gTTS
-import streamlit as st
+import io
 
-# १. पेज कॉन्फिगरेशन
-st.set_page_config(page_title="आकांक्षा RTI AI", layout="wide")
+# ==========================================
+# १. पेज सेटअप आणि डिझाईन (Page Config & CSS)
+# ==========================================
+st.set_page_config(page_title="RTI AI महा-सहाय्यक", page_icon="⚖️", layout="wide")
 
-# २. स्ट्रीमलिट टूलबार लपवण्यासाठी CSS
-hide_menu_style = """
-        <style>
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
-        div[data-testid="stToolbar"] {visibility: hidden;}
-        </style>
-        """
-st.markdown(hide_menu_style, unsafe_allow_html=True)
-
-# ३. निवडलेला फॉर्म ट्रॅक करणे
-query_params = st.query_params
-current_form = query_params.get("form", "jodpatra_a")
-
-# ४. शासकीय राजपत्राच्या हुबेहूब A4 नमुन्यात PDF/प्रिंट तयार करणारे फंक्शन
-def create_official_a4_pdf(title_header, rule_text, main_title, body_content, applicant_name, applicant_address, applicant_mobile):
-    html_code = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-    <meta charset="utf-8">
-    <title>{main_title}</title>
-    <style>
-        @page {{ size: A4; margin: 15mm 20mm 20mm 20mm; }}
-        body {{
-            font-family: 'Arial', 'Helvetica', sans-serif;
-            font-size: 13pt;
-            line-height: 1.5;
-            color: #000;
-            padding: 5px;
-        }}
-        .stamp-box {{
-            float: right;
-            border: 1px dashed #000;
-            padding: 8px;
-            font-size: 9pt;
-            text-align: center;
-            width: 140px;
-            margin-bottom: 10px;
-        }}
-        .title-container {{ text-align: center; margin-top: 10px; margin-bottom: 20px; clear: both; }}
-        .jodpatra-title {{ font-size: 18pt; font-weight: bold; text-decoration: underline; margin-bottom: 4px; }}
-        .rule-text {{ font-size: 11pt; font-weight: bold; margin-bottom: 4px; }}
-        .act-title {{ font-size: 13pt; font-weight: bold; }}
-        .content {{ font-size: 12pt; text-align: justify; margin-top: 15px; line-height: 1.6; }}
-        .footer-section {{ margin-top: 40px; float: right; text-align: left; width: 250px; font-size: 12pt; }}
-        .bottom-clear {{ clear: both; }}
-        @media print {{
-            .no-print {{ display: none; }}
-        }}
-        .btn-print {{
-            background-color: #27ae60; color: white; padding: 10px 18px; border: none; border-radius: 6px; font-size: 15px; cursor: pointer; margin-bottom: 15px; font-weight: bold;
-        }}
-    </style>
-    </head>
-    <body>
-        <button class="btn-print no-print" onclick="window.print()">🖨️ A4 साईज PDF म्हणून सेव्ह / प्रिंट करा</button>
-        
-        <div class="stamp-box">
-            येथे कोर्ट फी मुद्रांक चिकटवावा
-        </div>
-        
-        <div class="title-container">
-            <div class="jodpatra-title">{title_header}</div>
-            <div class="rule-text">{rule_text}</div>
-            <div class="act-title">{main_title}</div>
-        </div>
-        
-        <div class="content">
-            {body_content}
-        </div>
-        
-        <div class="footer-section">
-            <br>
-            <strong>अर्जदाराची सही / अंगठा:</strong> _____________<br>
-            <strong>नाव:</strong> {applicant_name}<br>
-            <strong>पत्ता:</strong> {applicant_address}<br>
-            <strong>मोबाईल:</strong> {applicant_mobile}
-        </div>
-        <div class="bottom-clear"></div>
-    </body>
-    </html>
-    """
-    return html_code
-
-# ५. ३D डिझाईन आणि रंगांसाठी CSS
 st.markdown("""
 <style>
-.header-card {
-    background: linear-gradient(135deg, #0f172a, #1e1b4b);
-    border: 2px solid #ffd700;
-    border-radius: 16px;
-    padding: 16px 12px;
-    text-align: center;
-    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.5);
-    margin-bottom: 20px;
-}
-.header-title { color: #ffd700; font-size: 19px; font-weight: bold; margin-bottom: 6px; line-height: 1.3; }
-.header-subtitle { color: #ff7675; font-size: 13px; font-weight: bold; margin-bottom: 8px; }
-.header-divider { border-top: 1px dashed #666; margin: 8px 0; }
-.header-footer { color: #ffffff; font-size: 13px; }
-
-.btn-container {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    margin-bottom: 25px;
-}
-@media (max-width: 600px) {
-    .btn-container { grid-template-columns: repeat(2, 1fr); }
-}
-
-.custom-btn {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 12px 4px; text-decoration: none !important; color: white !important;
-    font-weight: bold; font-size: 13px; border-radius: 12px; text-align: center;
-    box-shadow: inset 0px 2px 3px rgba(255, 255, 255, 0.5), 0px 5px 8px rgba(0, 0, 0, 0.35);
-    border-top: 1px solid rgba(255, 255, 255, 0.4); border-bottom: 3px solid rgba(0, 0, 0, 0.4);
-}
-.btn-green { background: linear-gradient(180deg, #11998e 0%, #38ef7d 100%); }
-.btn-orange { background: linear-gradient(180deg, #FF416C 0%, #FF4B2B 100%); }
-.btn-royal-blue { background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%); }
-.btn-3d-blue { background: linear-gradient(180deg, #00c6ff 0%, #0072ff 100%); }
-.btn-purple { background: linear-gradient(180deg, #8E2DE2 0%, #4A00E0 100%); }
-.btn-red { background: linear-gradient(180deg, #e52d27 0%, #b31217 100%); }
-.btn-gold { background: linear-gradient(180deg, #ffe066 0%, #d4af37 50%, #996515 100%); color: #000 !important; }
-.btn-cyan { background: linear-gradient(180deg, #00B4DB 0%, #0083B0 100%); }
-
-.ai-features-card {
-    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-    border: 2px solid #38ef7d;
-    border-radius: 14px;
-    padding: 14px 16px;
-    color: #ffffff;
-    box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.45);
-    margin-top: 15px;
-    margin-bottom: 20px;
-    font-family: sans-serif;
-}
-.ai-features-title {
-    font-size: 15px;
-    font-weight: bold;
-    cursor: pointer;
-    list-style: none;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: #38ef7d;
-}
-.ai-features-title::-webkit-details-marker {
-    display: none;
-}
-.ai-cat-block {
-    background: rgba(255, 255, 255, 0.05);
-    border-left: 4px solid #ffd700;
-    padding: 10px 14px;
-    margin-top: 12px;
-    border-radius: 8px;
-}
-.ai-cat-header {
-    color: #ffd700;
-    font-size: 14px;
-    font-weight: bold;
-    margin-bottom: 6px;
-}
-.ai-cat-list {
-    font-size: 13px;
-    color: #e2e8f0;
-    line-height: 1.6;
-    margin: 0;
-    padding-left: 18px;
-}
+    /* बटन डिझाईन */
+    .btn-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+    .custom-btn {
+        padding: 12px 18px;
+        border-radius: 10px;
+        color: white !important;
+        font-weight: bold;
+        text-decoration: none !important;
+        text-align: center;
+        font-size: 14px;
+        box-shadow: 0px 4px 6px rgba(0,0,0,0.1);
+        display: inline-block;
+    }
+    .btn-green { background-color: #28a745; }
+    .btn-orange { background-color: #fd7e14; }
+    .btn-royal-blue { background-color: #0056b3; }
+    .btn-3d-blue { background-color: #17a2b8; }
+    .btn-purple { background-color: #6f42c1; }
+    .btn-red { background-color: #dc3545; }
+    .btn-gold { background-color: #ffc107; color: #000 !important; }
+    .btn-cyan { background-color: #117a8b; }
 </style>
 """, unsafe_allow_html=True)
 
-# ६. हेडर बॅनर आणि ३D बटणे
-full_app_html = """
-<div class="header-card">
-    <div class="header-title">✨ आकांक्षा एंटरप्राईजेस RTI व ऑल-इन-वन AI ॲप ✨</div>
-    <div class="header-subtitle">⚡ घरबसल्या RTI अर्ज, शासकीय तक्रार व सर्व प्रकारच्या AI मदतीसाठी विनामूल्य ⚡</div>
-    <div class="header-divider"></div>
-    <div class="header-footer">👤 सतीश अशोक प्रधान | 📱 मो. ८६६8235395</div>
-</div>
+st.title("⚖️ AI कायदेशीर व RTI सल्लागार")
 
+# ==========================================
+# २. API KEY कॉन्फिगरेशन
+# ==========================================
+GEMINI_API_KEY = st.secrets.get("GEMINI_API_KEY", "")
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
+else:
+    st.warning("⚠️ कृपया Streamlit Secrets मध्ये GEMINI_API_KEY जोडा.")
+
+# ==========================================
+# ३. युनिव्हर्सल सिस्टम प्रॉम्प्ट
+# ==========================================
+UNIVERSAL_SYSTEM_PROMPT = """
+तुम्ही 'आकांक्षा AI असिस्टंट' आहात - एक बुद्धिमत्तापूर्ण, सर्वसमावेशक आणि बहुगुणी AI सहाय्यक.
+तुमचे काम विचारलेल्या प्रश्नाला सोप्या, अचूक आणि उपयुक्त मराठी भाषेत उत्तरे देणे आहे.
+"""
+
+# query_params द्वारे फॉर्म निवडणे
+query_params = st.query_params
+current_form = query_params.get("form", "jodpatra_a")
+
+# ==========================================
+# ४. मुख्य ८ बटन्स (नेव्हिगेशन)
+# ==========================================
+full_app_html = """
 <div class="btn-container">
-    <a href="?form=jodpatra_a#form-section" target="_self" class="custom-btn btn-green">📄<br>जोडपत्र 'अ'</a>
-    <a href="?form=first_appeal#form-section" target="_self" class="custom-btn btn-orange">⚖️<br>प्रथम अपील</a>
-    <a href="?form=second_appeal#form-section" target="_self" class="custom-btn btn-royal-blue">🏛️<br>माहिती आयोग</a>
-    <a href="?form=ai_chat#form-section" target="_self" class="custom-btn btn-3d-blue">✨<br>AI चॅट</a>
-    <a href="?form=court#form-section" target="_self" class="custom-btn btn-purple">📜<br>कोर्ट याचिका</a>
-    <a href="?form=complaint#form-section" target="_self" class="custom-btn btn-red">📣<br>शासकीय तक्रार</a>
-    <a href="?form=rti_portal#form-section" target="_self" class="custom-btn btn-gold">🌐<br>आरटीआय ऑनलाईन पोर्टल सहाय्य</a>
-    <a href="?form=consumer#form-section" target="_self" class="custom-btn btn-cyan">🛒<br>ग्राहक मंच</a>
+    <a href="?form=jodpatra_a#form-section" target="_self" class="custom-btn btn-green">📄 जोडपत्र 'अ'</a>
+    <a href="?form=first_appeal#form-section" target="_self" class="custom-btn btn-orange">⚖️ प्रथम अपील</a>
+    <a href="?form=second_appeal#form-section" target="_self" class="custom-btn btn-royal-blue">🏛️ द्वितीय अपील</a>
+    <a href="?form=ai_chat#form-section" target="_self" class="custom-btn btn-3d-blue">✨ AI चॅट</a>
+    <a href="?form=court#form-section" target="_self" class="custom-btn btn-purple">📜 कोर्ट याचिका</a>
+    <a href="?form=complaint#form-section" target="_self" class="custom-btn btn-red">📢 शासकीय तक्रार</a>
+    <a href="?form=rti_portal#form-section" target="_self" class="custom-btn btn-gold">🌐 RTI पोर्टल</a>
+    <a href="?form=consumer#form-section" target="_self" class="custom-btn btn-cyan">🛒 ग्राहक मंच</a>
 </div>
 """
 st.markdown(full_app_html, unsafe_allow_html=True)
-
-# ७. ऑटो-स्क्रोलसाठी टार्गेट पोझिशन (Anchor Point)
 st.markdown('<div id="form-section"></div>', unsafe_allow_html=True)
 
-# ८. सर्वसमावेशक AI सिस्टम प्रॉम्प्ट (अपडेटेड)
-UNIVERSAL_SYSTEM_PROMPT = """
-तू 'आकांक्षा AI असिस्टंट' आहेस - एक बुद्धिमान, सर्वसमावेशक आणि बहुगुणी AI सहाय्यक.
-तुझे काम युझरला खालील सर्व क्षेत्रांमध्ये अत्यंत सोप्या, अचूक आणि मदतगार मराठी भाषेत उत्तरे देणे आहे:
+# ==========================================
+# ५. कायदेशीर फॉर्म्सचे लॉजिक
+# ==========================================
 
-१. माहिती अधिकार (RTI 2005), कायदेशीर मसुदे, ग्राहक मंच व शासकीय तक्रारी.
-२. लेखन व संवाद: ईमेल, निबंध, सोशल मीडिया पोस्ट, भाषांतर, पुनर्रचना व सारांश.
-३. कला व निर्मिती: चित्रे/डिझाईन कल्पना, फोटो एडिटिंग टिप्स, व्हिडिओ स्क्रिप्ट, गाण्यांचे बोल.
-४. शिक्षण व अभ्यास: विषय समजवणे, गणित पायऱ्यांसह सोडवणे, क्विझ, स्पर्धा परीक्षा (MPSC/UPSC).
-५. तांत्रिक व कोडिंग: Python, HTML, वेबसाइट व सॉफ्टवेअर मार्गदर्शन, रोबोटिक्स, अभियांत्रिकी.
-६. दैनंदिन नियोजन: डाएट प्लॅन, प्रवास वेळापत्रक, बिजनेस आयडिया व डेटा विश्लेषण.
-
-महत्त्वाची सूचना: "मी फक्त कायदेशीर किंवा RTI सहाय्यक आहे" असा नकार कधीही देऊ नकोस. युझरने कोणत्याही विषयावर विचारलेला प्रश्न आत्मविश्वासाने आणि योग्य प्रकारे सोडवून दे.
-"""
-
-# ९. फॉर्म्स व AI चॅट ऑपरेशन्स
+# ----------------- जोडपत्र 'अ' -----------------
 if current_form == "jodpatra_a":
-    st.info("📋 जोडपत्र 'अ' - माहितीचा अधिकार अधिनियम, २००५ अन्वये अर्ज (नियम ३)")
+    st.info("📄 जोडपत्र 'अ' - माहितीचा अधिकार अधिनियम, २००५ अन्वये अर्ज (नियम ३)")
     with st.form("form_a"):
         karyalay = st.text_input("जन माहिती अधिकाऱ्याच्या कार्यालयाचे नाव व पत्ता")
-        name = st.text_input("अर्जदाराचे संपूर्ण नाव", placeholder="तुमचे पूर्ण नाव लिहा")
-        address = st.text_area("अर्जदाराचा पूर्ण पत्रव्यवहाराचा पत्ता", placeholder="घर क्र., रस्ता, भाग, शहर...")
-        mobile = st.text_input("मोबाईल क्रमांक", placeholder="उदा. 9876543210")
+        name = st.text_input("अर्जदाराचे संपूर्ण नाव", placeholder="तुमचे पूर्ण नाव")
+        address = st.text_area("अर्जदाराचा पूर्ण पत्राव्यवहाराचा पत्ता")
+        mobile = st.text_input("मोबाईल क्रमांक")
         subject = st.text_input("माहितीचा विषय")
-        period = st.text_input("माहितीचा कालावधी", placeholder="उदा. २०२४ ते २०२६")
+        period = st.text_input("माहितीचा कालावधी", placeholder="उदा. २०२४ ते २०२५")
         desc = st.text_area("हव्या असलेल्या माहितीचे वर्णन (सविस्तर मुद्दे)")
-        post_type = st.selectbox("माहिती कशी हवी आहे?", ["टपालाद्वारे (साधे/नोंदणीकृत)", "व्यक्तिशः (स्वहस्ते)"])
-        submitted_a = st.form_submit_button("📄 जोडपत्र 'अ' A4 अर्ज तयार करा")
-        
+        post_type = st.selectbox("माहिती कशी हवी आहे?", ["टपालाद्वारे (साधे/नोंदणीकृत)", "व्यक्तीश: (रूबरू)"])
+        submitted_a = st.form_submit_button("📄 जोडपत्र 'अ' तयार करा")
+
         if submitted_a:
-            body = f"""
-            <strong>प्रति,</strong><br>
-            जन माहिती अधिकारी,<br>
-            {karyalay}<br><br>
-            <strong>१. अर्जदाराचे संपूर्ण नाव:</strong> {name}<br>
-            <strong>२. पत्ता:</strong> {address}<br><br>
-            <strong>३. हव्या असलेल्या माहितीचा तपशील:</strong><br>
-            (एक) माहितीचा विषय: {subject}<br>
-            (दोन) ज्या कालावधी संबंधात माहिती हवी असेल तो कालावधी: {period}<br>
-            (तीन) हव्या असलेल्या माहितीचे वर्णन: {desc}<br>
-            (चार) माहिती टपालाद्वारे हवी आहे की व्यक्तिशः हवी आहे: {post_type}<br>
-            (पाच) टपालाद्वारे हवी असल्यास: नोंदणीकृत टपालाने<br><br>
-            <strong>४. अर्जदार दारिद्र्यरेषेखालील आहे किंवा कसे:</strong> नाही.<br><br>
-            <strong>ठिकाण:</strong> _______________<br>
-            <strong>दिनांक:</strong> ___/___/२०__
-            """
-            pdf_code = create_official_a4_pdf("जोडपत्र 'अ'", "(नियम ३ पहा)", "माहितीचा अधिकार अधिनियम, २००५ अन्वये माहिती मिळविण्यासाठीच्या अर्जाचा नमुना", body, name, address, mobile)
-            st.session_state.draft_a_text = f"जोडपत्र 'अ' (नियम ३ पहा)\nप्रति,\nजन माहिती अधिकारी, {karyalay}\n\n१. नाव: {name}\n२. पत्ता: {address}\n\n३. माहितीचा तपशील:\n- विषय: {subject}\n- कालावधी: {period}\n- वर्णन: {desc}\n- टपाल प्रकार: {post_type}"
-            st.session_state.pdf_a = pdf_code
+            draft = f"प्रति,\nजन माहिती अधिकारी,\n{karyalay}\n\nअर्जदार: {name}\nपत्ता: {address}\nमोबाईल: {mobile}\n\nविषय: {subject}\nकालावधी: {period}\n\nमाहितीचा तपशील:\n{desc}\n\nमाहिती मिळण्याचा प्रकार: {post_type}"
+            st.session_state.draft_a_text = draft
 
     if "draft_a_text" in st.session_state:
         st.success("अर्जाचा मसुदा तयार झाला आहे!")
-        st.subheader("📋 अर्जाचा मसुदा पाहणी:")
-        st.text_area("", st.session_state.draft_a_text, height=220)
-        st.download_button("📥 जोडपत्र 'अ' (A4 PDF) डाऊनलोड करा", data=st.session_state.pdf_a, file_name="Jodpatra_A_RTI.html", mime="text/html")
+        st.text_area("मसुदा पाहणी:", st.session_state.draft_a_text, height=200)
 
+# ----------------- प्रथम अपील -----------------
 elif current_form == "first_appeal":
     st.info("⚖️ जोडपत्र 'ब' - प्रथम अपील अर्ज (कलम १९ (१) - नियम ५(१))")
     with st.form("form_b"):
         officer = st.text_input("प्रथम अपीलीय अधिकाऱ्याचे पदनाम व पत्ता")
-        name = st.text_input("अपीलकाराचे संपूर्ण नाव", placeholder="तुमचे नाव")
-        address = st.text_area("पत्रव्यवहाराचा पत्ता", placeholder="तुमचा पत्ता")
-        mobile = st.text_input("मोबाईल क्रमांक")
-        pio_details = st.text_input("संबंधित जन माहिती अधिकाऱ्याचा तपशील")
-        reason = st.text_area("अपील करण्याचे कारण / प्रयोजन", placeholder="उदा. वेळेत माहिती न दिल्याने / चुकीची माहिती दिल्याने...")
-        info_detail = st.text_area("आवश्यक असलेल्या माहितीचा तपशील व विभाग")
-        submitted_b = st.form_submit_button("⚖️ जोडपत्र 'ब' A4 अपील तयार करा")
-        
+        name = st.text_input("अपीलकर्त्याचे संपूर्ण नाव")
+        address = st.text_area("पत्राव्यवहाराचा पत्ता")
+        reason = st.text_area("अपील करण्याचे कारण / प्रयोजन")
+        submitted_b = st.form_submit_button("⚖️ प्रथम अपील मसुदा तयार करा")
+
         if submitted_b:
-            body = f"""
-            <strong>प्रति,</strong><br>
-            प्रथम अपीलीय अधिकारी,<br>
-            {officer}<br><br>
-            <strong>(१) अपीलकाराचे पूर्ण नाव:</strong> {name}<br>
-            <strong>(२) पूर्ण पत्ता:</strong> {address}<br>
-            <strong>(३) संबंधित जन माहिती अधिकाऱ्याचा तपशील:</strong> {pio_details}<br>
-            <strong>(४) ज्या निर्णयाविरुद्ध अपील करावयाचे आहे त्याची तारीख:</strong> माहिती मिळाली नाही / अनिर्णित<br>
-            <strong>(५) अपील करण्याचे प्रयोजन:</strong> {reason}<br>
-            <strong>(६) आवश्यक असलेल्या माहितीचा तपशील:</strong> {info_detail}<br>
-            <strong>(७) माहितीशी संबंधित कार्यालय व विभाग:</strong> मूळ अर्ज जोडपत्र 'अ' ची छायाप्रत सोबत जोडली आहे.<br><br>
-            <strong>ठिकाण:</strong> _______________<br>
-            <strong>दिनांक:</strong> ___/___/२०__
-            """
-            pdf_code = create_official_a4_pdf("जोडपत्र 'ब'", "(नियम ५(१) नुसार)", "माहितीचा अधिकार कायदा, २००५ - कलम १९ (१) अन्वये प्रथम अपील अर्ज", body, name, address, mobile)
-            st.session_state.draft_b_text = f"जोडपत्र 'ब' (नियम ५(१))\nप्रति, प्रथम अपीलीय अधिकारी, {officer}\n१. अपीलकार: {name}\n२. पत्ता: {address}\n३. प्रयोजन: {reason}"
-            st.session_state.pdf_b = pdf_code
+            draft = f"प्रति,\nप्रथम अपीलीय अधिकारी,\n{officer}\n\nअपीलकर्ता: {name}\nपत्ता: {address}\n\nअपील करण्याचे कारण: {reason}"
+            st.session_state.draft_b_text = draft
 
     if "draft_b_text" in st.session_state:
         st.success("प्रथम अपील मसुदा तयार झाला आहे!")
-        st.subheader("📋 मसुदा पाहणी:")
-        st.text_area("", st.session_state.draft_b_text, height=220)
-        st.download_button("📥 जोडपत्र 'ब' (A4 PDF) डाऊनलोड करा", data=st.session_state.pdf_b, file_name="Jodpatra_B_First_Appeal.html", mime="text/html")
+        st.text_area("मसुदा पाहणी:", st.session_state.draft_b_text, height=200)
 
+# ----------------- द्वितीय अपील -----------------
 elif current_form == "second_appeal":
-    st.info("🏛️ जोडपत्र 'क' - द्वितिय अपील अर्ज (कलम १९ (३) - नियम ५(२))")
+    st.info("🏛️ जोडपत्र 'क' - द्वितीय अपील अर्ज (कलम १९ (३) - नियम ५(२))")
     with st.form("form_c"):
         commissioner = st.text_input("मा. माहिती आयुक्त व राज्य माहिती आयोग कार्यालय पत्ता")
-        name = st.text_input("अपीलकाराचे संपूर्ण नाव", placeholder="तुमचे नाव")
-        address = st.text_area("पत्रव्यवहाराचा पत्ता", placeholder="तुमचा पत्ता")
-        mobile = st.text_input("मोबाईल क्रमांक")
-        pio_info = st.text_input("संबंधित जन माहिती अधिकाऱ्याचा तपशील")
-        fa_info = st.text_input("प्रथम अपीलीय प्राधिकाऱ्याचा तपशील")
+        name = st.text_input("अपीलकर्त्याचे संपूर्ण नाव")
         reason = st.text_area("दुसरे अपील करण्याचे प्रयोजन")
-        submitted_c = st.form_submit_button("🏛️ जोडपत्र 'क' A4 द्वितीय अपील तयार करा")
-        
+        submitted_c = st.form_submit_button("🏛️ द्वितीय अपील मसुदा तयार करा")
+
         if submitted_c:
-            body = f"""
-            <strong>प्रति,</strong><br>
-            मा. माहिती आयुक्त,<br>
-            राज्य माहिती आयोग कार्यालय,<br>
-            {commissioner}<br><br>
-            <strong>(१) अपीलकाराचे पूर्ण नाव:</strong> {name}<br>
-            <strong>(२) पत्रव्यवहाराचा पत्ता:</strong> {address}<br>
-            <strong>(३) संबंधित जन माहिती अधिकाऱ्याचा तपशील:</strong> {pio_info}<br>
-            <strong>(४) प्रथम अपीलीय प्राधिकाऱ्याचा तपशील:</strong> {fa_info}<br>
-            <strong>(५) दुसरे अपील करण्याचे प्रयोजन:</strong> {reason}<br>
-            <strong>(६) आवश्यक असलेल्या माहितीचा तपशील:</strong> सोबत मूळ अर्ज जोडपत्र 'अ' व प्रथम अपीलाची प्रत जोडली आहे.<br><br>
-            <strong>ठिकाण:</strong> _______________<br>
-            <strong>दिनांक:</strong> ___/___/२०__
-            """
-            pdf_code = create_official_a4_pdf("जोडपत्र 'क'", "(नियम ५(२) नुसार)", "माहितीचा अधिकार कायदा, २००५ - कलम १९ (३) अन्वये द्वितिय अपील अर्ज", body, name, address, mobile)
-            st.session_state.draft_c_text = f"जोडपत्र 'क' (नियम ५(२))\nप्रति, मा. माहिती आयुक्त, {commissioner}\nअपीलकार: {name}\nप्रयोजन: {reason}"
-            st.session_state.pdf_c = pdf_code
+            draft = f"प्रति,\nमा. राज्य माहिती आयुक्त,\n{commissioner}\n\nअपीलकर्ता: {name}\n\nप्रयोजन: {reason}"
+            st.session_state.draft_c_text = draft
 
     if "draft_c_text" in st.session_state:
         st.success("द्वितीय अपील मसुदा तयार झाला आहे!")
-        st.subheader("📋 मसुदा पाहणी:")
-        st.text_area("", st.session_state.draft_c_text, height=220)
-        st.download_button("📥 जोडपत्र 'क' (A4 PDF) डाऊनलोड करा", data=st.session_state.pdf_c, file_name="Jodpatra_C_Second_Appeal.html", mime="text/html")
+        st.text_area("मसुदा पाहणी:", st.session_state.draft_c_text, height=200)
 
+# ----------------- AI चॅट माहिती -----------------
 elif current_form == "ai_chat":
-    st.info("✨ आकांक्षा AI चॅट असिस्टंट - सर्व प्रकारची AI मदत, माहिती व ऑडिओ ऐका")
+    st.info("✨ आकांक्षा AI चॅट असिस्टंट - सर्व प्रकारची कायदेशीर व बहुगुणी मदत घ्या.")
 
-    ai_all_features_html = """
-    <details class="ai-features-card">
-    <summary class="ai-features-title">
-    <span>🚀 आकांक्षा AI च्या सर्व क्षमता व संपूर्ण मार्गदर्शक यादी (येथे क्लिक करा)</span>
-    <span style="font-size: 18px;">▼</span>
-    </summary>
-
-    <div class="ai-cat-block">
-    <div class="ai-cat-header">1. लेखन आणि संवाद (Writing & Communication)</div>
-    <ul class="ai-cat-list">
-    <li><b>मजकूर लिहिणे:</b> ईमेल, निबंध, ब्लॉग आणि सोशल मीडिया पोस्ट तयार करणे.</li>
-    <li><b>व्याकरण सुधारणे:</b> स्पेलिंग आणि व्याकरणाच्या चुका दुरुस्त करणे.</li>
-    <li><b>पुनर्रचना (Rewriting):</b> लिहिलेला मजकूर अधिक चांगल्या किंवा सोप्या भाषेत बदलणे.</li>
-    <li><b>भाषांतर (Translation):</b> मराठी, इंग्रजीसह जगातील अनेक भाषांमध्ये भाषांतर.</li>
-    <li><b>मजकुराचा सारांश:</b> मोठे रिपोर्ट किंवा पुस्तके वाचून संक्षिप्त सारांश देणे.</li>
-    </ul>
-    </div>
-
-    <div class="ai-cat-block">
-    <div class="ai-cat-header">2. कला आणि निर्मिती (Creative & Design)</div>
-    <ul class="ai-cat-list">
-    <li><b>चित्र निर्मिती व संकल्पना:</b> हुबेहूब फोटो किंवा चित्राच्या संकल्पना तयार करणे.</li>
-    <li><b>फोटो एडिटिंग:</b> बॅकग्राउंड बदलणे किंवा नको असलेला भाग काढण्याचे मार्गदर्शन.</li>
-    <li><b>व्हिडिओ मेकिंग:</b> मजकुरावरून (Text) व्हिडिओ स्क्रिप्ट आणि प्लॅनिंग बनवणे.</li>
-    <li><b>संगीत व गाणी:</b> शब्दावरून नवीन गाण्याचे बोल (Lyrics) तयार करणे.</li>
-    <li><b>लोगो आणि बॅनर:</b> व्यवसायासाठी डिझाईन आणि लेआउटच्या कल्पना देणे.</li>
-    </ul>
-    </div>
-
-    <div class="ai-cat-block">
-    <div class="ai-cat-header">3. शिक्षण आणि अभ्यास (Education & Learning)</div>
-    <ul class="ai-cat-list">
-    <li><b>वैयक्तिक शिक्षक (Tutor):</b> कठीण विषय सोप्या भाषेत समजावून सांगणे.</li>
-    <li><b>प्रश्नमंजुषा (Quizzes):</b> सरावासाठी प्रश्नपत्रिका किंवा क्विझ तयार करणे.</li>
-    <li><b>भाषा शिकणे:</b> नवीन भाषा (उदा. इंग्रजी) बोलण्याचा सराव करून घेणे.</li>
-    <li><b>गणित सोडवणे:</b> कठीण गणिते पायऱ्यांसह (Step-by-step) सोडवून देणे.</li>
-    </ul>
-    </div>
-
-    <div class="ai-cat-block">
-    <div class="ai-cat-header">4. तांत्रिक आणि कोडिंग (Technical & Coding)</div>
-    <ul class="ai-cat-list">
-    <li><b>कोड लिहिणे:</b> Python, Java, HTML यांसारख्या भाषांमध्ये कोडिंग करणे.</li>
-    <li><b>भूल दुरुस्ती (Debugging):</b> कोडिंगमधील चुका शोधून त्या दुरुस्त करणे.</li>
-    <li><b>वेबसाईट डिझाईन:</b> साध्या वेबसाईटचा आराखडा व स्ट्रक्चर तयार करणे.</li>
-    </ul>
-    </div>
-
-    <div class="ai-cat-block">
-    <div class="ai-cat-header">5. दैनंदिन नियोजन आणि व्यवस्थापन (Daily Productivity)</div>
-    <ul class="ai-cat-list">
-    <li><b>प्रवास नियोजन:</b> प्रवासाचे संपूर्ण वेळापत्रक (Travel Itinerary) बनवणे.</li>
-    <li><b>आहार आणि फिटनेस:</b> रोजचा डाएट प्लॅन आणि व्यायामाचे वेळापत्रक तयार करणे.</li>
-    <li><b>वेळापत्रक व्यवस्थापन:</b> मिटिंग सेट करणे आणि कामाची आठवण करून देणे.</li>
-    <li><b>आवाज ओळखणे:</b> बोललेले शब्द व ऑडिओ समजावून उत्तर देणे.</li>
-    </ul>
-    </div>
-
-    <div class="ai-cat-block">
-    <div class="ai-cat-header">6. व्यवसाय आणि डेटा विश्लेषण (Business & Data Analysis)</div>
-    <ul class="ai-cat-list">
-    <li><b>डेटा समजून घेणे:</b> मोठ्या एक्सेल/डेटा शीटचे विश्लेषण करून मुद्दे सांगणे.</li>
-    <li><b>मार्केटिंग आयडिया:</b> व्यवसायासाठी नवीन कल्पना आणि जाहिरातींचे प्लॅनिंग करणे.</li>
-    <li><b>ग्राहक सेवा (Chatbots):</b> २४ तास ग्राहकांच्या प्रश्नांची आपोआप उत्तरे देणे.</li>
-    </ul>
-    </div>
-
-    <div class="ai-cat-block">
-    <div class="ai-cat-header">7. चालू घडामोडी व स्पर्धा परीक्षा (Current Affairs & Exams)</div>
-    <ul class="ai-cat-list">
-    <li><b>रोजच्या बातम्यांचा सारांश:</b> आजच्या ५ महत्त्वाच्या घडामोडींची सोपी यादी.</li>
-    <li><b>स्पर्धा परीक्षा अभ्यास:</b> MPSC, UPSC परीक्षांसाठी चालू घडामोडींवर आधारित MCQs बनवणे.</li>
-    <li><b>विशिष्ट घटना:</b> नवीन योजना, खेळ किंवा राजकीय घडामोडी सविस्तर समजवणे.</li>
-    </ul>
-    </div>
-
-    <div class="ai-cat-block">
-    <div class="ai-cat-header">8. रोबोट, विमान आणि रेल्वे निर्मिती (Engineering & Manufacturing)</div>
-    <ul class="ai-cat-list">
-    <li><b>रोबोटिक्स (Robotics):</b> Arduino/Python कोड, सेन्सर Wiring व Circuit मार्गदर्शन.</li>
-    <li><b>विमान व रेल्वे इंजिनिअरिंग:</b> 3D डिझायनिंग मार्गदर्शन, हलके साहित्य (Carbon Fiber/Aluminum) निवडणे.</li>
-    <li><b>सुरक्षा आणि चाचणी:</b> डिजिटल चाचणी (Simulation) व तांत्रिक चुका दुरुस्त करणे.</li>
-    </ul>
-    </div>
-    </details>
-    """
-    st.markdown(ai_all_features_html, unsafe_allow_html=True)
-
-    GEMINI_API_KEY = st.secrets.get("GEMINI_API_KEY", "")
-    if GEMINI_API_KEY:
-        genai.configure(api_key=GEMINI_API_KEY)
-    else:
-        st.warning("⚠️ कृपया Streamlit Secrets मध्ये GEMINI_API_KEY जोडा.")
-
-    if "chat_history" not in st.session_state:
-        st.session_state.chat_history = []
-
-    uploaded_file = st.file_uploader("📷 शासकीय पत्र, फोटो किंवा PDF अपलोड करा:", type=["jpg", "jpeg", "png", "pdf"])
-    image_data = None
-    pdf_data = None
-
-    if uploaded_file:
-        if uploaded_file.type == "application/pdf":
-            pdf_data = {"mime_type": "application/pdf", "data": uploaded_file.getvalue()}
-            st.success("📄 PDF फाईल जोडली गेली आहे.")
-        else:
-            image_data = Image.open(uploaded_file)
-            st.image(image_data, caption="अपलोड केलेले कागदपत्र", width=250)
-
-        if st.button("🚀 अपलोड केलेल्या फाईलचे त्वरित विश्लेषण करा"):
-            with st.spinner("AI फाईल वाचत आहे आणि उत्तर तयार करत आहे..."):
-                auto_models = [
-                    "gemini-2.5-flash", "gemini-3.7-flash", "gemini-3.5-flash", 
-                    "gemini-3.6-flash", "gemini-3.1-flash", "gemini-1.5-flash", "gemini-1.5-pro"
-                ]
-                
-                response_text = None
-                last_error = ""
-
-                file_prompt = UNIVERSAL_SYSTEM_PROMPT + "\n\nखालील कागदपत्र/फोटो किंवा फाईल मधील मजकूर वाचून सविस्तर मराठीत विश्लेषण करा."
-
-                for m_name in auto_models:
-                    try:
-                        model = genai.GenerativeModel(m_name)
-                        if pdf_data:
-                            response = model.generate_content([file_prompt, pdf_data])
-                        elif image_data:
-                            response = model.generate_content([file_prompt, image_data])
-                        
-                        if response and response.text:
-                            response_text = response.text
-                            break
-                    except Exception as err:
-                        last_error = str(err)
-                        continue
-                
-                if response_text:
-                    st.markdown(response_text)
-                    try:
-                        tts = gTTS(text=response_text, lang='mr', slow=False)
-                        audio_fp = io.BytesIO()
-                        tts.write_to_fp(audio_fp)
-                        audio_bytes = audio_fp.getvalue()
-                        st.audio(audio_bytes, format='audio/mp3')
-                        st.session_state.chat_history.append({"role": "user", "content": "📷 [फाईल अपलोड करून मजकूर वाचण्याची मागणी केली]"})
-                        st.session_state.chat_history.append({"role": "assistant", "content": response_text, "audio_data": audio_bytes})
-                    except:
-                        st.session_state.chat_history.append({"role": "assistant", "content": response_text})
-                else:
-                    st.error(f"❌ एरर: {last_error}")
-
-    for message in st.session_state.chat_history:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
-            if message["role"] == "assistant" and "audio_data" in message:
-                st.audio(message["audio_data"], format='audio/mp3')
-
-    if user_input := st.chat_input("तुमचा प्रश्न किंवा अडचण येथे लिहा..."):
-        st.chat_message("user").markdown(user_input)
-        st.session_state.chat_history.append({"role": "user", "content": user_input})
-
-        with st.chat_message("assistant"):
-            with st.spinner("AI विचार करत आहे व उत्तर तयार करत आहे..."):
-                auto_models = [
-                    "gemini-2.5-flash", "gemini-3.7-flash", "gemini-3.5-flash", 
-                    "gemini-3.6-flash", "gemini-3.1-flash", "gemini-1.5-flash", "gemini-1.5-pro"
-                ]
-                
-                response_text = None
-                last_error = ""
-
-                for m_name in auto_models:
-                    try:
-                        model = genai.GenerativeModel(m_name)
-                        if pdf_data:
-                            response = model.generate_content([UNIVERSAL_SYSTEM_PROMPT, user_input, pdf_data])
-                        elif image_data:
-                            response = model.generate_content([UNIVERSAL_SYSTEM_PROMPT, user_input, image_data])
-                        else:
-                            response = model.generate_content(f"{UNIVERSAL_SYSTEM_PROMPT}\n\nयुझर प्रश्न: {user_input}")
-                        
-                        if response and response.text:
-                            response_text = response.text
-                            break
-                    except Exception as err:
-                        last_error = str(err)
-                        continue
-
-                if response_text:
-                    st.markdown(response_text)
-                    
-                    try:
-                        tts = gTTS(text=response_text, lang='mr', slow=False)
-                        audio_fp = io.BytesIO()
-                        tts.write_to_fp(audio_fp)
-                        audio_bytes = audio_fp.getvalue()
-                        st.audio(audio_bytes, format='audio/mp3')
-                        st.session_state.chat_history.append({"role": "assistant", "content": response_text, "audio_data": audio_bytes})
-                    except Exception as tts_err:
-                        st.session_state.chat_history.append({"role": "assistant", "content": response_text})
-                else:
-                    st.error(f"❌ API एरर: {last_error}")
-
+# ----------------- कोर्ट याचिका -----------------
 elif current_form == "court":
-    st.info("📜 कोर्ट याचिका / लीगल ब्रीफ (वकिलांसाठी मसुदा)")
+    st.info("📜 कोर्ट याचिका / लीगल ब्रीफ मसुदा")
     with st.form("court_form"):
-        court_type = st.selectbox("कोर्टाचा प्रकार", ["जिल्हा व सत्र न्यायालय", "उच्च न्यायालय (High Court)", "दीवाणी न्यायालय (Civil Court)", "महसूल न्यायालय"])
-        petitioner = st.text_input("वादी / अर्जदाराचे नाव", placeholder="तुमचे नाव")
-        address = st.text_area("अर्जदाराचा पत्ता")
-        mobile = st.text_input("मोबाईल क्रमांक")
+        court_type = st.selectbox("कोर्टाचा प्रकार", ["जिल्हा व सत्र न्यायालय", "उच्च न्यायालय (High Court)", "दिवाणी न्यायालय"])
+        petitioner = st.text_input("वादी / अर्जदाराचे नाव")
         respondent = st.text_input("प्रतिवादी / विरोधी पक्षाचे नाव")
         matter = st.text_area("घटनेचा किंवा वादाचा मुख्य मुद्दा")
-        submitted_court = st.form_submit_button("📜 वकिलांसाठी मसुदा तयार करा")
-        
+        submitted_court = st.form_submit_button("📜 याचिका मसुदा तयार करा")
+
         if submitted_court:
-            body = f"""
-            <strong>समक्ष: {court_type}</strong><br><br>
-            <strong>वादी / अर्जदार:</strong> {petitioner}<br>
-            <strong>विरुद्ध</strong><br>
-            <strong>प्रतिवादी:</strong> {respondent}<br><br>
-            <strong>विषय:</strong> कायदेशीर दाव्याचा / याचिकेचा प्राथमिक मसुदा व तथ्ये.<br><br>
-            <strong>प्रकरणाची पार्श्वभूमी व मुख्य मुद्दे:</strong><br>{matter}<br><br>
-            <strong>मागणी / प्रार्थना (Relief Claimed):</strong><br>
-            १. वरील तथ्यांच्या आधारे वादीस योग्य तो कायदेशीर न्याय व भरपाई देण्यात यावी.<br>
-            २. प्रतिवादीस तात्काळ समज पत्र (Notice) जारी करण्यात यावे.
-            """
-            pdf_code = create_official_a4_pdf("कोर्ट याचिका मसुदा", "कायदेशीर मसुदा नमुना", f"समक्ष: {court_type}", body, petitioner, address, mobile)
-            st.session_state.draft_court_text = f"समक्ष: {court_type}\nवादी: {petitioner}\nविरुद्ध\nप्रतिवादी: {respondent}\nमुद्दा: {matter}"
-            st.session_state.pdf_court = pdf_code
+            draft = f"समक्ष: {court_type}\n\nवादी: {petitioner}\nविरुद्ध\nप्रतिवादी: {respondent}\n\nविषय/घटना:\n{matter}"
+            st.session_state.draft_court_text = draft
 
     if "draft_court_text" in st.session_state:
-        st.success("कोर्ट याचिका मसुदा तयार झाला आहे!")
-        st.subheader("📋 मसुदा पाहणी:")
-        st.text_area("", st.session_state.draft_court_text, height=220)
-        st.download_button("📥 कोर्ट मसुदा (A4 PDF) डाऊनलोड करा", data=st.session_state.pdf_court, file_name="Court_Petition_Draft.html", mime="text/html")
+        st.success("याचिका मसुदा तयार झाला आहे!")
+        st.text_area("मसुदा पाहणी:", st.session_state.draft_court_text, height=200)
 
+# ----------------- शासकीय तक्रार -----------------
 elif current_form == "complaint":
-    st.info("📣 शासकीय तक्रार निवारण अर्ज")
+    st.info("📢 शासकीय तक्रार निवारण अर्ज")
     with st.form("complaint_form"):
-        dept = st.text_input("शासकीय विभाग / कार्यालय", placeholder="उदा. महानगरपालिका / पोलीस स्टेशन / महावितरण")
-        name = st.text_input("तक्रारदाराचे नाव", placeholder="तुमचे नाव")
-        address = st.text_area("तक्रारदाराचा पत्ता")
-        mobile = st.text_input("मोबाईल क्रमांक")
-        short_issue = st.text_input("तक्रारीचा विषय (केवळ २-३ शब्दांत)", placeholder="उदा. रस्त्यावरील खड्डे / कचरा समस्या")
-        details = st.text_area("समस्येची माहिती")
-        submitted_comp = st.form_submit_button("📣 शासकीय तक्रार अर्ज तयार करा")
-        
+        dept = st.text_input("शासकीय विभाग / कार्यालय")
+        name = st.text_input("तक्रारदाराचे नाव")
+        short_issue = st.text_area("तक्रारीचा सविस्तर विषय")
+        submitted_comp = st.form_submit_button("📢 तक्रार अर्ज तयार करा")
+
         if submitted_comp:
-            body = f"""
-            <strong>प्रति,</strong><br>
-            मा. विभाग प्रमुख / अधिकारी,<br>
-            {dept}<br><br>
-            <strong>विषय:</strong> {short_issue} बाबत तात्काळ शासकीय तक्रार व कारवाईबाबत.<br><br>
-            <strong>महोदय,</strong><br><br>
-            मी {name}, नागरिक या पत्राद्वारे आपल्या निदर्शनास आणून देतो की, माझ्या भागात खालीलप्रमाणे गंभीर समस्या निर्माण झाली आहे:<br><br>
-            <strong>तक्रारीचा तपशील:</strong><br>{details}<br><br>
-            तरी वरील समस्येचे गांभीर्य लक्षात घेऊन संबंधितांवर तात्काळ योग्य ती कारवाई करावी व मला केलेल्या कारवाईचा अहवाल पाठवावा.
-            """
-            pdf_code = create_official_a4_pdf("शासकीय तक्रार अर्ज", "अधिकृत तक्रार नमुना", "शासकीय विभाग तक्रार निवारण पत्र", body, name, address, mobile)
-            st.session_state.draft_comp_text = f"प्रति, मा. अधिकारी, {dept}\nविषय: {short_issue}\nतक्रारदार: {name}\nतपशील: {details}"
-            st.session_state.pdf_comp = pdf_code
+            draft = f"प्रति,\nमा. विभाग प्रमुख / अधिकारी,\n{dept}\n\nतक्रारदार: {name}\n\nविषय: {short_issue}"
+            st.session_state.draft_comp_text = draft
 
     if "draft_comp_text" in st.session_state:
         st.success("तक्रार अर्ज तयार झाला आहे!")
-        st.subheader("📋 अर्जाचा मसुदा पाहणी:")
-        st.text_area("", st.session_state.draft_comp_text, height=220)
-        st.download_button("📥 तक्रार अर्ज (A4 PDF) डाऊनलोड करा", data=st.session_state.pdf_comp, file_name="Govt_Complaint.html", mime="text/html")
+        st.text_area("मसुदा पाहणी:", st.session_state.draft_comp_text, height=200)
 
+# ----------------- RTI पोर्टल -----------------
 elif current_form == "rti_portal":
     st.info("🌐 आरटीआय ऑनलाईन पोर्टल मार्गदर्शन")
-    st.write("• **महाराष्ट्र आरटीआय पोर्टल:** १५० शब्दांची मर्यादा व ₹१० शुल्क.")
-    st.write("• **केंद्रीय आरटीआय पोर्टल:** ५०० शब्दांची मर्यादा व ₹१० शुल्क.")
+    st.write("* **महाराष्ट्र आरटीआय पोर्टल:** १५० शब्दांची मर्यादा व १० रु. शुल्क.")
+    st.write("* **केंद्रीय आरटीआय पोर्टल:** ५०० शब्दांची मर्यादा व १० रु. शुल्क.")
 
+# ----------------- ग्राहक मंच -----------------
 elif current_form == "consumer":
     st.info("🛒 ग्राहक मंच (Consumer Commission) संपूर्ण मार्गदर्शन व अर्ज मसुदा")
-    st.markdown("""
-    <strong>📌 प्राथमिक तयारी व कोर्ट अधिकार क्षेत्र:</strong>
-    * **जिल्हा आयोग:** ₹१ कोटी रुपयांपर्यंतचे दावे.
-    * **राज्य आयोग:** ₹१ कोटी ते ₹१० कोटी रुपयांपर्यंतचे दावे.
-    * **राष्ट्रीय आयोग:** ₹१० कोटींपेक्षा जास्त रक्कमेचे दावे.
-    * **e-Daakhil पोर्टल:** ई-डाखील (`edaakhil.nic.in`) वर ऑनलाईन तक्रार दाखल करता येते.
-    """)
-    st.markdown("---")
-    
     with st.form("consumer_form"):
-        name = st.text_input("तक्रारदाराचे नाव", placeholder="तुमचे नाव")
-        address = st.text_area("तक्रारदाराचा पत्ता")
-        mobile = st.text_input("मोबाईल क्रमांक")
-        company = st.text_input("सामनेवाला (ज्या कंपनी/दुकानाची तक्रार आहे)", placeholder="")
-        product = st.text_input("खरेदी केलेली वस्तू / घेतलेली सेवा")
-        amount = st.text_input("फसवणुकीची किंवा नुकसानाची रक्कम (₹)")
+        name = st.text_input("तक्रारदाराचे नाव")
+        company = st.text_input("सामनेवाला (ज्या कंपनी/दुकानावर तक्रार आहे)")
         complaint_desc = st.text_area("काय फसवणूक किंवा सेवेत त्रुटी झाली?")
-        submitted_cons = st.form_submit_button("🛒 ग्राहक मंच तक्रार मसुदा तयार करा")
-        
+        submitted_cons = st.form_submit_button("🛒 ग्राहक मंच मसुदा तयार करा")
+
         if submitted_cons:
-            body = f"""
-            <strong>समक्ष: मा. जिल्हा ग्राहक वाद निवारण आयोग</strong><br><br>
-            <strong>तक्रारदार:</strong> {name}<br>
-            <strong>विरुद्ध</strong><br>
-            <strong>सामनेवाला (विपक्षी):</strong> {company}<br><br>
-            <strong>तक्रारीचा अर्ज: ग्राहक संरक्षण कायदा २०१९ अन्वये.</strong><br><br>
-            १. तक्रारदाराने सामनेवाला यांच्याकडून '{product}' ही वस्तू/सेवा खरेदी केली होती.<br>
-            २. नुकसानाची रक्कम: ₹ {amount}/-<br><br>
-            <strong>३. तक्रारीचे कारण व फसवणूक:</strong><br>{complaint_desc}<br><br>
-            <strong>मागणी:</strong><br>तक्रारदारास नुकसान भरपाईपोटी ₹ {amount}/- परत मिळावेत व मानसिक त्रासापोटी योग्य भरपाई मंजूर व्हावी.
-            """
-            pdf_code = create_official_a4_pdf("ग्राहक मंच तक्रार अर्ज", "ग्राहक संरक्षण कायदा २०१९ अन्वये", "समक्ष: मा. जिल्हा ग्राहक वाद निवारण आयोग", body, name, address, mobile)
-            st.session_state.draft_cons_text = f"समक्ष: मा. जिल्हा ग्राहक वाद निवारण आयोग\nतक्रारदार: {name}\nविरुद्ध: {company}\nरक्कम: ₹ {amount}/-\nकारण: {complaint_desc}"
-            st.session_state.pdf_cons = pdf_code
+            draft = f"प्रति,\nमा. अध्यक्ष, जिल्हा ग्राहक वाद निवारण आयोग\n\nतक्रारदार: {name}\nविरुद्ध\nसामनेवाला: {company}\n\nतक्रारीचे कारण: {complaint_desc}"
+            st.session_state.draft_cons_text = draft
 
     if "draft_cons_text" in st.session_state:
         st.success("ग्राहक मंच तक्रार मसुदा तयार झाला आहे!")
-        st.subheader("📋 मसुदा पाहणी:")
-        st.text_area("", st.session_state.draft_cons_text, height=220)
-        st.download_button("📥 ग्राहक मंच अर्ज (A4 PDF) डाऊनलोड करा", data=st.session_state.pdf_cons, file_name="Consumer_Complaint.html", mime="text/html")
+        st.text_area("मसुदा पाहणी:", st.session_state.draft_cons_text, height=200)
 
-# १०. सोशल मीडिया शेअर ड्रॉपडाउन (तळाशी)
+
+# ==========================================
+# ६. सोशली शेअर पर्याय (Social Media Links)
+# ==========================================
 st.markdown("---")
-
-app_link = "https://rti-ai-app-eydmnrwsmhvwhmryv7nn4v.streamlit.app/?v=3"
+app_link = "https://rti-ai-app-eydmnrwsnhwwhmryv7nn4v.streamlit.app/?v=3"
 share_text = f"घरबसल्या RTI अर्ज, शासकीय तक्रारी व AI मदतीसाठी हे मोफत AI ॲप वापरा: {app_link}"
 
 whatsapp_url = f"https://api.whatsapp.com/send?text={share_text}"
 facebook_url = f"https://www.facebook.com/sharer/sharer.php?u={app_link}"
 telegram_url = f"https://t.me/share/url?url={app_link}&text=RTI व सर्वसमावेशक AI ॲप"
-sms_url = f"sms:?body={share_text}"
-messenger_url = f"fb-messenger://share/?link={app_link}"
-instagram_url = "https://www.instagram.com/"
 
 single_share_code = f"""
 <style>
-.share-details {{
-    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-    border: 2px solid #ffd700;
-    border-radius: 12px;
-    padding: 12px;
-    color: white;
-    box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
-    margin-bottom: 20px;
-}}
-.share-summary {{
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    list-style: none;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: #ffd700;
-}}
-.share-summary::-webkit-details-marker {{
-    display: none;
-}}
-.share-grid {{
-    display: grid;
-    grid-template-columns: repeat( auto-fit, minmax(130px, 1fr) );
-    gap: 8px;
-    margin-top: 15px;
-    padding-top: 10px;
-    border-top: 1px dashed rgba(255,255,255,0.3);
-}}
-.share-item {{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
-    border-radius: 8px;
-    color: white !important;
-    font-weight: bold;
-    font-size: 13px;
-    text-decoration: none !important;
-    text-align: center;
-}}
+.share-details {{ background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); border: 2px solid #ffd700; border-radius: 12px; padding: 12px; color: white; margin-bottom: 20px; }}
+.share-summary {{ font-size: 16px; font-weight: bold; cursor: pointer; color: #ffd700; }}
+.share-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-top: 15px; }}
+.share-item {{ display: flex; align-items: center; justify-content: center; padding: 10px; border-radius: 8px; color: white !important; font-weight: bold; text-decoration: none !important; }}
 </style>
-
 <details class="share-details">
-    <summary class="share-summary">
-        <span>📢 हे ॲप मित्रांना शेअर करा (सर्व पर्याय)</span>
-        <span style="font-size: 18px;">▼</span>
-    </summary>
+    <summary class="share-summary">📢 हे ॲप मित्रांना शेअर करा (सर्व पर्याय) ▼</summary>
     <div class="share-grid">
-        <a href="{whatsapp_url}" target="_blank" class="share-item" style="background-color: #25D366;">💬 WhatsApp</a>
-        <a href="{facebook_url}" target="_blank" class="share-item" style="background-color: #1877F2;">📘 Facebook</a>
-        <a href="{telegram_url}" target="_blank" class="share-item" style="background-color: #0088cc;">✈️ Telegram</a>
-        <a href="{sms_url}" class="share-item" style="background-color: #ff9900;">📱 SMS</a>
-        <a href="{messenger_url}" target="_blank" class="share-item" style="background-color: #006AFF;">💬 Messenger</a>
-        <a href="{instagram_url}" target="_blank" class="share-item" style="background-color: #E1306C;">📸 Instagram</a>
+        <a href="{whatsapp_url}" target="_blank" class="share-item" style="background-color: #25D366;">WhatsApp</a>
+        <a href="{facebook_url}" target="_blank" class="share-item" style="background-color: #1877F2;">Facebook</a>
+        <a href="{telegram_url}" target="_blank" class="share-item" style="background-color: #0088cc;">Telegram</a>
     </div>
 </details>
 """
-
 st.markdown(single_share_code, unsafe_allow_html=True)
-# --- नवीन सुपरफास्ट AI चॅट इनपुट ---
-if prompt := st.chat_input("AI ला कायदेशीर प्रश्न विचारा..."):
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
-        
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    
-    with st.chat_message("user"):
-        st.markdown(prompt)
+
+
+# ==========================================
+# ७. सर्व नवीन मॉडेल्ससह AI चॅट लॉजिक (शेवटी)
+# ==========================================
+
+st.subheader("💬 AI कायदेशीर मदत व चॅट बॉक्स")
+
+# अपलोड पर्याय (पर्यायी)
+uploaded_file = st.file_uploader("📄 शासकीय पत्र, फोटो किंवा PDF अपलोड करा (पर्यायी)", type=["jpg", "jpeg", "png", "pdf"])
+
+# चॅट हिस्ट्री
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
+
+# जुने मेसेज दाखवणे
+for message in st.session_state.chat_history:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+
+# चॅट इनपुट बॉक्स
+if user_input := st.chat_input("AI ला कायदेशीर प्रश्न विचारा..."):
+    # युझरचा मेसेज दाखवा
+    st.chat_message("user").markdown(user_input)
+    st.session_state.chat_history.append({"role": "user", "content": user_input})
 
     with st.chat_message("assistant"):
-        try:
-            model = genai.GenerativeModel("gemini-1.5-flash")
-            response = model.generate_content(prompt, stream=True)
-            st.write_stream(response)
-        except Exception as e:
-            st.error(f"त्रुटी आली: {e}")
+        with st.spinner("AI विचार करत आहे व उत्तर तयार करत आहे..."):
+            
+            # 🚀 नवीन जेमिनी मॉडेल्स समाविष्ट केले आहेत
+            auto_models = [
+                "gemini-3.6-flash",
+                "gemini-3.5-flash-lite",
+                "gemini-3.1-pro",
+                "gemini-2.5-flash",
+                "gemini-1.5-flash"
+            ]
+            
+            response_text = None
+            last_error = ""
+            
+            # मॉडेल्स ऑटोमॅटिक ट्राय करणे
+            for m_name in auto_models:
+                try:
+                    model = genai.GenerativeModel(m_name)
+                    response = model.generate_content([UNIVERSAL_SYSTEM_PROMPT, user_input])
+                    
+                    if response and response.text:
+                        response_text = response.text
+                        break
+                except Exception as err:
+                    last_error = str(err)
+                    continue
+            
+            # उत्तर दाखवणे
+            if response_text:
+                st.markdown(response_text)
+                st.session_state.chat_history.append({"role": "assistant", "content": response_text})
+            else:
+                st.error(f"❌ API एरर: {last_error}")
