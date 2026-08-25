@@ -732,3 +732,20 @@ single_share_code = f"""
 """
 
 st.markdown(single_share_code, unsafe_allow_html=True)
+# --- नवीन सुपरफास्ट AI चॅट इनपुट ---
+if prompt := st.chat_input("AI ला कायदेशीर प्रश्न विचारा..."):
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+        
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    with st.chat_message("assistant"):
+        try:
+            model = genai.GenerativeModel("gemini-1.5-flash")
+            response = model.generate_content(prompt, stream=True)
+            st.write_stream(response)
+        except Exception as e:
+            st.error(f"त्रुटी आली: {e}")
