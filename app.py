@@ -35,7 +35,6 @@ st.markdown("""
         100% { background-position: 0% 50%; } 
     }
     
-    /* 3D ग्लोइंग हेडर बॅनर */
     .custom-header-banner {
         background: linear-gradient(-45deg, #1e3c72, #2a5298, #0f2027, #203a43, #2c5364);
         background-size: 400% 400%;
@@ -53,7 +52,6 @@ st.markdown("""
     .banner-subtitle { font-size: 14px; color: #ff9999; font-weight: 600; margin-bottom: 12px; }
     .banner-footer { border-top: 1px dashed rgba(255,255,255,0.3); padding-top: 10px; font-size: 15px; color: #e0e0e0; font-weight: 600; }
 
-    /* 3D ग्रिड बटन्स लेआउट */
     .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; max-width: 900px; margin: 0 auto 25px auto; }
     .grid-btn-3d {
         display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -74,7 +72,6 @@ st.markdown("""
     .btn-col-8 { background-image: linear-gradient(135deg, #00b4db, #0083b0, #136a8a, #267871); }
     .btn-icon { font-size: 22px; margin-bottom: 4px; }
 
-    /* Custom Input & Preview Box */
     .draft-preview {
         background-color: #020617;
         color: #E2E8F0;
@@ -102,7 +99,7 @@ query_params = st.query_params
 current_form = query_params.get("form", "jodpatra_a")
 
 # ==========================================
-# ३. १-पेज A4 कलरफुल PDF व DOCX जनरेटर
+# ३. १-पेज A4 PDF व DOCX जनरेटर
 # ==========================================
 def generate_colorful_a4_pdf(title_text, content_text):
     buffer = io.BytesIO()
@@ -187,7 +184,7 @@ def get_share_links(text):
     return whatsapp_url, mailto_url
 
 # ==========================================
-# ४. AI कॉन्फिगरेशन व Multi-Model System
+# ४. AI कॉन्फिगरेशन
 # ==========================================
 GEMINI_API_KEY = st.secrets.get("GEMINI_API_KEY", "")
 if GEMINI_API_KEY:
@@ -516,7 +513,7 @@ single_share_code = f"""
 st.markdown(single_share_code, unsafe_allow_html=True)
 
 # ==========================================
-# ९. AI चॅट लॉजिक (सर्वात खाली हलवले - अपडेटेड मॉडेल्स सह)
+# ९. AI चॅट लॉजिक (सर्वात शेवटी - एरर-फ्री ऑटो-फॉलबॅक सह)
 # ==========================================
 st.markdown("---")
 st.subheader("💬 AI कायदेशीर मदत व चॅट बॉक्स")
@@ -533,14 +530,15 @@ if user_input := st.chat_input("आकांक्षा AI ला कायद�
 
     with st.chat_message("assistant"):
         with st.spinner("AI विचार करत आहे व उत्तर तयार करत आहे..."):
-            # अपडेटेड आणि जुने दोन्ही मॉडेल्स समाविष्ट केले आहेत (Auto Fallback System)
+            # API चालणारे मूळ नाव आणि मॅन्युअल नाव दोन्ही सिस्टममध्ये समाविष्ट केले आहे
             auto_models = [
-                "gemini-3.6-flash",
-                "gemini-3.5-flash-lite",
-                "gemini-3.1-pro",
                 "gemini-2.5-flash", 
                 "gemini-2.0-flash", 
-                "gemini-1.5-flash"
+                "gemini-1.5-flash",
+                "gemini-1.5-pro",
+                "gemini-3.6-flash",
+                "gemini-3.5-flash-lite",
+                "gemini-3.1-pro"
             ]
             response_text = None
             last_error = ""
@@ -558,4 +556,4 @@ if user_input := st.chat_input("आकांक्षा AI ला कायद�
                 st.markdown(response_text)
                 st.session_state.chat_history.append({"role": "assistant", "content": response_text})
             else:
-                st.error(f"❌ API एरर: {last_error}")
+                st.error(f"❌ API कनेक्ट करताना अडचण येत आहे. कृपया API Key तपासा: {last_error}")
