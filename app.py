@@ -3,6 +3,7 @@ from PIL import Image
 import google.generativeai as genai
 from gtts import gTTS
 import streamlit as st
+
 # ग्लोबल AI मॉडेल्सची लिस्ट (कोडच्या सुरुवातीला १ वेळ)
 auto_models = [
     "gemini-3.6-flash", "gemini-3.7-flash", "gemini-2.5-flash",
@@ -454,40 +455,39 @@ elif current_form == "ai_chat":
             image_data = Image.open(uploaded_file)
             st.image(image_data, caption="अपलोड केलेले कागदपत्र", width=250)
                 
-                response_text = None
-                last_error = ""
+        response_text = None
+        last_error = ""
+        file_prompt = UNIVERSAL_SYSTEM_PROMPT + "\n\nखालील कागदपत्र/फोटो किंवा फाईल मधील मजकूर वाचून सविस्तर मराठीत विश्लेषण करा."
 
-                file_prompt = UNIVERSAL_SYSTEM_PROMPT + "\n\nखालील कागदपत्र/फोटो किंवा फाईल मधील मजकूर वाचून सविस्तर मराठीत विश्लेषण करा."
-
-                for m_name in auto_models:
-                    try:
-                        model = genai.GenerativeModel(m_name)
-                        if pdf_data:
-                            response = model.generate_content([file_prompt, pdf_data])
-                        elif image_data:
-                            response = model.generate_content([file_prompt, image_data])
-                        
-                        if response and response.text:
-                            response_text = response.text
-                            break
-                    except Exception as err:
-                        last_error = str(err)
-                        continue
+        for m_name in auto_models:
+            try:
+                model = genai.GenerativeModel(m_name)
+                if pdf_data:
+                    response = model.generate_content([file_prompt, pdf_data])
+                elif image_data:
+                    response = model.generate_content([file_prompt, image_data])
                 
-                if response_text:
-                    st.markdown(response_text)
-                    try:
-                        tts = gTTS(text=response_text, lang='mr', slow=False)
-                        audio_fp = io.BytesIO()
-                        tts.write_to_fp(audio_fp)
-                        audio_bytes = audio_fp.getvalue()
-                        st.audio(audio_bytes, format='audio/mp3')
-                        st.session_state.chat_history.append({"role": "user", "content": "📷 [फाईल अपलोड करून मजकूर वाचण्याची मागणी केली]"})
-                        st.session_state.chat_history.append({"role": "assistant", "content": response_text, "audio_data": audio_bytes})
-                    except:
-                        st.session_state.chat_history.append({"role": "assistant", "content": response_text})
-                else:
-                    st.error(f"❌ एरर: {last_error}")
+                if response and response.text:
+                    response_text = response.text
+                    break
+            except Exception as err:
+                last_error = str(err)
+                continue
+        
+        if response_text:
+            st.markdown(response_text)
+            try:
+                tts = gTTS(text=response_text, lang='mr', slow=False)
+                audio_fp = io.BytesIO()
+                tts.write_to_fp(audio_fp)
+                audio_bytes = audio_fp.getvalue()
+                st.audio(audio_bytes, format='audio/mp3')
+                st.session_state.chat_history.append({"role": "user", "content": "📷 [फाईल अपलोड करून मजकूर वाचण्याची मागणी केली]"})
+                st.session_state.chat_history.append({"role": "assistant", "content": response_text, "audio_data": audio_bytes})
+            except Exception:
+                st.session_state.chat_history.append({"role": "assistant", "content": response_text})
+        else:
+            st.error(f"❌ एरर: {last_error}")
 
     for message in st.session_state.chat_history:
         with st.chat_message(message["role"]):
@@ -499,40 +499,40 @@ elif current_form == "ai_chat":
         st.chat_message("user").markdown(user_input)
         st.session_state.chat_history.append({"role": "user", "content": user_input})
                 
-                response_text = None
-                last_error = ""
+        response_text = None
+        last_error = ""
 
-                for m_name in auto_models:
-                    try:
-                        model = genai.GenerativeModel(m_name)
-                        if pdf_data:
-                            response = model.generate_content([UNIVERSAL_SYSTEM_PROMPT, user_input, pdf_data])
-                        elif image_data:
-                            response = model.generate_content([UNIVERSAL_SYSTEM_PROMPT, user_input, image_data])
-                        else:
-                            response = model.generate_content(f"{UNIVERSAL_SYSTEM_PROMPT}\n\nयुझर प्रश्न: {user_input}")
-                        
-                        if response and response.text:
-                            response_text = response.text
-                            break
-                    except Exception as err:
-                        last_error = str(err)
-                        continue
-
-                if response_text:
-                    st.markdown(response_text)
-                    
-                    try:
-                        tts = gTTS(text=response_text, lang='mr', slow=False)
-                        audio_fp = io.BytesIO()
-                        tts.write_to_fp(audio_fp)
-                        audio_bytes = audio_fp.getvalue()
-                        st.audio(audio_bytes, format='audio/mp3')
-                        st.session_state.chat_history.append({"role": "assistant", "content": response_text, "audio_data": audio_bytes})
-                    except Exception as tts_err:
-                        st.session_state.chat_history.append({"role": "assistant", "content": response_text})
+        for m_name in auto_models:
+            try:
+                model = genai.GenerativeModel(m_name)
+                if pdf_data:
+                    response = model.generate_content([UNIVERSAL_SYSTEM_PROMPT, user_input, pdf_data])
+                elif image_data:
+                    response = model.generate_content([UNIVERSAL_SYSTEM_PROMPT, user_input, image_data])
                 else:
-                    st.error(f"❌ API एरर: {last_error}")
+                    response = model.generate_content(f"{UNIVERSAL_SYSTEM_PROMPT}\n\nयुझर प्रश्न: {user_input}")
+                
+                if response and response.text:
+                    response_text = response.text
+                    break
+            except Exception as err:
+                last_error = str(err)
+                continue
+
+        if response_text:
+            st.markdown(response_text)
+            
+            try:
+                tts = gTTS(text=response_text, lang='mr', slow=False)
+                audio_fp = io.BytesIO()
+                tts.write_to_fp(audio_fp)
+                audio_bytes = audio_fp.getvalue()
+                st.audio(audio_bytes, format='audio/mp3')
+                st.session_state.chat_history.append({"role": "assistant", "content": response_text, "audio_data": audio_bytes})
+            except Exception as tts_err:
+                st.session_state.chat_history.append({"role": "assistant", "content": response_text})
+        else:
+            st.error(f"❌ API एरर: {last_error}")
 
 elif current_form == "court":
     st.info("📜 कोर्ट याचिका / लीगल ब्रीफ (वकिलांसाठी मसुदा)")
