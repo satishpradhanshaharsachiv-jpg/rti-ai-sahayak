@@ -3,6 +3,11 @@ from PIL import Image
 import google.generativeai as genai
 from gtts import gTTS
 import streamlit as st
+# ग्लोबल AI मॉडेल्सची लिस्ट (कोडच्या सुरुवातीला १ वेळ)
+auto_models = [
+    "gemini-3.6-flash", "gemini-3.7-flash", "gemini-2.5-flash",
+    "gemini-3.5-flash", "gemini-3.1-flash", "gemini-1.5-flash", "gemini-1.5-pro"
+]
 
 # १. पेज कॉन्फिगरेशन
 st.set_page_config(page_title="आकांक्षा RTI AI", layout="wide")
@@ -448,13 +453,6 @@ elif current_form == "ai_chat":
         else:
             image_data = Image.open(uploaded_file)
             st.image(image_data, caption="अपलोड केलेले कागदपत्र", width=250)
-
-        if st.button("🚀 अपलोड केलेल्या फाईलचे त्वरित विश्लेषण करा"):
-            with st.spinner("AI फाईल वाचत आहे आणि उत्तर तयार करत आहे..."):
-                auto_models = [
-                    "gemini-2.5-flash", "gemini-3.7-flash", "gemini-3.5-flash", 
-                    "gemini-3.6-flash", "gemini-3.1-flash", "gemini-1.5-flash", "gemini-1.5-pro"
-                ]
                 
                 response_text = None
                 last_error = ""
@@ -500,13 +498,6 @@ elif current_form == "ai_chat":
     if user_input := st.chat_input("तुमचा प्रश्न किंवा अडचण येथे लिहा..."):
         st.chat_message("user").markdown(user_input)
         st.session_state.chat_history.append({"role": "user", "content": user_input})
-
-        with st.chat_message("assistant"):
-            with st.spinner("AI विचार करत आहे व उत्तर तयार करत आहे..."):
-                auto_models = [
-                    "gemini-2.5-flash", "gemini-3.7-flash", "gemini-3.5-flash", 
-                    "gemini-3.6-flash", "gemini-3.1-flash", "gemini-1.5-flash", "gemini-1.5-pro"
-                ]
                 
                 response_text = None
                 last_error = ""
