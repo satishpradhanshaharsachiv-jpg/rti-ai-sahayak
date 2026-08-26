@@ -14,9 +14,9 @@ from reportlab.pdfgen import canvas
 # १. पेज कॉन्फिगरेशन आणि कस्टम CSS (Branding, Dark Theme & Dynamic CSS)
 # ==============================================================================
 st.set_page_config(
-    page_title="आकांक्षा AI कायदेशीर व प्रशासकीय महा-सहाय्यक",
+    page_title="आकांक्षा इंटरप्राइजेस RTI AI ॲप",
     page_icon="⚖️",
-    layout="wide",
+    layout="centered",
     initial_sidebar_state="collapsed"
 )
 
@@ -30,65 +30,33 @@ st.markdown("""
         color: #F8FAFC !important;
     }
 
-    /* मुख्य शीर्षक ॲनिमेशन */
-    .animated-title {
-        font-size: 2.2rem !important;
-        font-weight: 800;
-        text-align: center;
-        background: linear-gradient(90deg, #38BDF8, #818CF8, #C084FC, #F472B6);
-        background-size: 300% 300%;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        animation: gradient-animation 4s ease infinite;
-        margin-bottom: 0px;
-    }
-
-    @keyframes gradient-animation {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
-
-    .sub-title {
-        text-align: center;
-        color: #FACC15;
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin-bottom: 15px;
-    }
-
-    /* VIP Banner Design */
-    .vip-banner {
-        background: rgba(30, 41, 59, 0.8);
-        border: 2px solid transparent;
-        border-image: linear-gradient(90deg, #22C55E, #3B82F6, #EF4444) 1;
-        padding: 10px 15px;
-        text-align: center;
-        border-radius: 12px;
-        font-size: 1rem;
-        font-weight: 700;
-        color: #FFFFFF;
-        box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
-        margin-bottom: 25px;
-    }
-
-    /* Menu Card Grid Styling */
+    /* स्क्रीनशॉट प्रमाणे ग्रिड बटनांचे डिझाईन आणि कलर्स */
     .stButton > button {
         width: 100% !important;
-        height: 85px !important;
-        font-size: 1.1rem !important;
+        height: 90px !important;
+        font-size: 1.15rem !important;
         font-weight: 700 !important;
-        border-radius: 14px !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        transition: all 0.3s ease !important;
+        border-radius: 16px !important;
+        border: none !important;
         color: #FFFFFF !important;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+        transition: transform 0.2s ease;
     }
 
     .stButton > button:hover {
-        transform: translateY(-4px) scale(1.02);
-        box-shadow: 0 8px 20px rgba(56, 189, 248, 0.4) !important;
-        border-color: #38BDF8 !important;
+        transform: scale(0.98);
+    }
+
+    /* स्क्रीनशॉट प्रमाणे वरचा मुख्य बॅनर (Gradient Border Box) */
+    .custom-banner {
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+        border: 2px solid transparent;
+        border-image: linear-gradient(90deg, #FACC15, #38BDF8, #EC4899) 1;
+        padding: 18px;
+        text-align: center;
+        border-radius: 18px;
+        box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+        margin-bottom: 20px;
     }
 
     /* Custom Form Containers */
@@ -130,22 +98,13 @@ if 'generated_draft' not in st.session_state:
 # ==============================================================================
 # ३. हेल्पर फंक्शन्स (AI Integration & Document Generators)
 # ==============================================================================
-
-# Gemini Multi-Model Fallback System
 def get_ai_response(prompt):
     api_key = st.secrets.get("GEMINI_API_KEY", None)
     if not api_key:
         return "कृपया Streamlit Secrets मध्ये 'GEMINI_API_KEY' जोडा."
     
     genai.configure(api_key=api_key)
-    
-    # फॉलबॅक मॉडेल्सची सूची
-    models = [
-        'gemini-2.5-flash',
-        'gemini-2.0-flash',
-        'gemini-1.5-flash',
-        'gemini-1.5-pro'
-    ]
+    models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro']
     
     for model_name in models:
         try:
@@ -158,7 +117,6 @@ def get_ai_response(prompt):
             
     return "माफ करा, सर्व AI मॉडेल्स सध्या व्यस्त आहेत. कृपया थोड्या वेळाने प्रयत्न करा."
 
-# DOCX फाईल जनरेटर
 def generate_docx(text):
     doc = Document()
     doc.add_heading('आकांक्षा AI कायदेशीर मसुदा', level=1)
@@ -169,7 +127,6 @@ def generate_docx(text):
     bio.seek(0)
     return bio
 
-# PDF फाईल जनरेटर
 def generate_pdf(text):
     bio = io.BytesIO()
     doc = SimpleDocTemplate(bio, pagesize=letter)
@@ -189,7 +146,6 @@ def generate_pdf(text):
     bio.seek(0)
     return bio
 
-# WhatsApp & Email Share Links Generator
 def get_share_links(text):
     encoded_text = urllib.parse.quote(text[:1000] + "...\n\n(पूर्ण मसुदा आकांक्षा AI द्वारे तयार केला आहे.)")
     whatsapp_url = f"https://api.whatsapp.com/send?text={encoded_text}"
@@ -197,76 +153,103 @@ def get_share_links(text):
     return whatsapp_url, mailto_url
 
 # ==============================================================================
-# ४. ब्रँडिंग व व्हीआयपी हेडर (Header Section)
+# ४. ब्रँडिंग व स्क्रीनशॉट प्रमाणे हुबेहूब बॅनर हेडर
 # ==============================================================================
-st.markdown('<div class="animated-title">⚖️ आकांक्षा AI कायदेशीर व प्रशासकीय महा-सहाय्यक</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-title">⚡ एका सेकंदात अर्ज व कायदेशीर मसुदे तयार करा!</div>', unsafe_allow_html=True)
 st.markdown("""
-<div class="vip-banner">
-    👨‍💼 संकल्पना व निर्मिती: सतीश अशोक प्रधान | 📱 मो. ८६६८२३५३९५ | 📍 छत्रपती संभाजीनगर
+<div class="custom-banner">
+    <div style="font-size: 1.35rem; font-weight: 800; color: #FACC15; margin-bottom: 5px;">
+        ✨ आकांक्षा इंटरप्राइजेस RTI AI ॲप कायदेशीर सहाय्यक ✨
+    </div>
+    <div style="font-size: 0.9rem; color: #F87171; font-weight: 600; margin-bottom: 8px;">
+        ⚡ घरसल्या RTI अर्ज व शासकीय तक्रार एका सेकंदात A4 साइज मध्ये मोफत मिळवा ⚡
+    </div>
+    <hr style="border: 0.5px dashed #475569; margin: 8px 0;">
+    <div style="font-size: 0.95rem; font-weight: 700; color: #E2E8F0;">
+        👨‍💼 सतीश अशोक प्रधान | 📱 मो. ८६६८२३५३९५
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
 # Top Action Navigation Bar
-col_home, col_lib, col_hist = st.columns([1, 1, 1])
+col_home, col_lib, col_hist = st.columns(3)
 with col_home:
-    if st.button("🏠 मुख्य होमपेज", key="nav_home"):
+    if st.button("🏠 होमपेज", key="nav_home"):
         st.session_state.active_tab = "home"
         st.rerun()
 with col_lib:
-    if st.button("📚 कायदेशीर कलमे (Legal Library)", key="nav_lib"):
+    if st.button("📚 कायदेशीर कलमे", key="nav_lib"):
         st.session_state.active_tab = "library"
         st.rerun()
 with col_hist:
-    if st.button("📜 मसुदा इतिहास (Saved Drafts)", key="nav_hist"):
+    if st.button("📜 जतन केलेले मसुदे", key="nav_hist"):
         st.session_state.active_tab = "history"
         st.rerun()
 
 st.markdown("---")
 
 # ==============================================================================
-# ५. मुख्य होमपेज - ८ ग्रिड कार्ड्स (Grid Navigation)
+# ५. मुख्य होमपेज - स्क्रीनशॉट प्रमाणे २-कॉलम ग्रिड रचना व खाली चॅट बॉक्स
 # ==============================================================================
 if st.session_state.active_tab == "home":
-    st.subheader("🎯 आवश्यक सेवेची निवड करा:")
     
-    row1_col1, row1_col2, row1_col3, row1_col4 = st.columns(4)
-    with row1_col1:
-        if st.button("📄 जोडपत्र 'अ'\n(RTI कलम ६(१))", key="btn_rti_a"):
+    # 1 ली जोडी: जोडपत्र 'अ' आणि प्रथम अपील
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("📄\nजोडपत्र 'अ'\n(RTI कलम ६(१))", key="btn_rti_a"):
             st.session_state.active_tab = "rti_a"
             st.rerun()
-    with row1_col2:
-        if st.button("⚖️ जोडपत्र 'ब'\n(प्रथम अपील १९(१))", key="btn_rti_b"):
+    with col2:
+        if st.button("⚖️\nप्रथम अपील\n(कलम १९(१))", key="btn_rti_b"):
             st.session_state.active_tab = "rti_b"
             st.rerun()
-    with row1_col3:
-        if st.button("🏛️ जोडपत्र 'क'\n(द्वितीय अपील १९(३))", key="btn_rti_c"):
+
+    st.markdown("<div style='margin-top: 12px;'></div>", unsafe_allow_html=True)
+
+    # 2 री जोडी: माहिती आयोग आणि AI चॅट
+    col3, col4 = st.columns(2)
+    with col3:
+        if st.button("🏛️\nमाहिती आयोग\n(द्वितीय अपील १९(३))", key="btn_rti_c"):
             st.session_state.active_tab = "rti_c"
             st.rerun()
-    with row1_col4:
-        if st.button("✨ AI चॅट\n(कायदेशीर सहाय्यक)", key="btn_ai_chat"):
+    with col4:
+        if st.button("✨\nAI चॅट\n(कायदेशीर सहाय्यक)", key="btn_ai_chat"):
             st.session_state.active_tab = "ai_chat"
+            st.rerun()
+
+    st.markdown("<div style='margin-top: 12px;'></div>", unsafe_allow_html=True)
+
+    # 3 री जोडी: कोर्ट याचिका आणि शासकीय तक्रार
+    col5, col6 = st.columns(2)
+    with col5:
+        if st.button("📜\nकोर्ट याचिका\n(Court Petition)", key="btn_court"):
+            st.session_state.active_tab = "court"
+            st.rerun()
+    with col6:
+        if st.button("📢\nशासकीय तक्रार\n(Administrative App)", key="btn_govt"):
+            st.session_state.active_tab = "govt"
+            st.rerun()
+
+    st.markdown("<div style='margin-top: 12px;'></div>", unsafe_allow_html=True)
+
+    # 4 थी जोडी: प्रतिज्ञापत्र / पोर्टल सहाय्य आणि ग्राहक मंच
+    col7, col8 = st.columns(2)
+    with col7:
+        if st.button("📝\nप्रतिज्ञापत्र / पोर्टल\n(Affidavit Draft)", key="btn_affidavit"):
+            st.session_state.active_tab = "affidavit"
+            st.rerun()
+    with col8:
+        if st.button("🛒\nग्राहक मंच तक्रार\n(Consumer Forum)", key="btn_consumer"):
+            st.session_state.active_tab = "consumer"
             st.rerun()
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    row2_col1, row2_col2, row2_col3, row2_col4 = st.columns(4)
-    with row2_col1:
-        if st.button("📜 न्यायालयीन मसुदा\n(Court Petition)", key="btn_court"):
-            st.session_state.active_tab = "court"
-            st.rerun()
-    with row2_col2:
-        if st.button("📢 शासकीय तक्रार\n(Administrative App)", key="btn_govt"):
-            st.session_state.active_tab = "govt"
-            st.rerun()
-    with row2_col3:
-        if st.button("📝 प्रतिज्ञापत्र\n(Affidavit Draft)", key="btn_affidavit"):
-            st.session_state.active_tab = "affidavit"
-            st.rerun()
-    with row2_col4:
-        if st.button("🛒 ग्राहक मंच तक्रार\n(Consumer Forum)", key="btn_consumer"):
-            st.session_state.active_tab = "consumer"
-            st.rerun()
+    # स्क्रीनशॉट प्रमाणे अगदी खाली चॅट इनपुट बॉक्स
+    home_chat_input = st.chat_input("AI ला कायदेशीर प्रश्न विचारा...")
+    if home_chat_input:
+        st.session_state.active_tab = "ai_chat"
+        st.session_state.chat_history.append({"role": "user", "content": home_chat_input})
+        st.rerun()
 
 # ==============================================================================
 # ६. विभाग १: जोडपत्र 'अ' (माहिती अधिकार मूळ अर्ज - कलम ६(१))
@@ -450,7 +433,6 @@ elif st.session_state.active_tab == "ai_chat":
     st.header("✨ आकांक्षा AI - कायदेशीर व प्रशासकीय चॅट सहाय्यक")
     st.info("💡 टीप: कोणत्याही कायदेशीर, न्यायालयीन किंवा माहिती अधिकार कायद्याबद्दल प्रश्न विचारा. किंवा कागदपत्रांचा संदर्भ द्या.")
 
-    # Render Chat History
     for message in st.session_state.chat_history:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
@@ -717,7 +699,6 @@ if st.session_state.generated_draft and st.session_state.active_tab not in ["hom
     
     col_txt, col_docx, col_pdf, col_wa, col_mail = st.columns(5)
     
-    # TXT Download
     with col_txt:
         st.download_button(
             label="📄 TXT डाऊनलोड",
@@ -726,7 +707,6 @@ if st.session_state.generated_draft and st.session_state.active_tab not in ["hom
             mime="text/plain"
         )
         
-    # DOCX Download
     with col_docx:
         docx_file = generate_docx(st.session_state.generated_draft)
         st.download_button(
@@ -736,7 +716,6 @@ if st.session_state.generated_draft and st.session_state.active_tab not in ["hom
             mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         )
         
-    # PDF Download
     with col_pdf:
         pdf_file = generate_pdf(st.session_state.generated_draft)
         st.download_button(
@@ -746,7 +725,6 @@ if st.session_state.generated_draft and st.session_state.active_tab not in ["hom
             mime="application/pdf"
         )
         
-    # Share Links
     wa_link, mail_link = get_share_links(st.session_state.generated_draft)
     with col_wa:
         st.markdown(f'<a href="{wa_link}" target="_blank"><button style="width:100%; background-color:#22C55E; color:white; border:none; padding:8px; border-radius:8px; font-weight:bold;">📲 WhatsApp शेअर</button></a>', unsafe_allow_html=True)
