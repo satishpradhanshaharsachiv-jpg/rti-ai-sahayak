@@ -722,4 +722,22 @@ single_share_code = f"""
 </details>
 """
 
-st.markdown(single_share_code, unsafe_allow_html=True)
+st.markdown(single_share_code,unsafe_allow_html=True)
+
+# गुगल ॲडमॉब बॅनर जाहिरात कोड
+admob_banner_html = """
+<div style="text-align: center; margin: 20px 0;">
+    <script async src="https://googlesyndication.com"
+     crossorigin="anonymous"></script>
+    <ins class="adsbygoogle"
+         style="display:inline-block;width:320px;height:50px"
+         data-ad-client="ca-app-pub-9607106579137390"
+         data-ad-slot="2730249857"></ins>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+</div>
+"""
+
+# जाहिरात स्क्रीनवर दाखवण्यासाठी
+st.markdown(admob_banner_html, unsafe_allow_html=True)
