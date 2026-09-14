@@ -728,3 +728,11 @@ footer {visibility: hidden;}
 .viewerBadge_container__1QSob {display: none !important;}
 </style>
 """, unsafe_allow_html=True)
+
+# युनिटी जाहिरातींसाठी जोडलेला भाग (Game ID: 800373215)
+st.markdown("""
+<div style="text-align: center; padding: 12px; background: #0f172a; border: 2px solid #ffd700; border-radius: 10px; margin-top: 20px;">
+    <p style="color: #ffd700; font-weight: bold; font-size: 14px; margin-bottom: 5px;">✨ युनिटी जाहिरात जागा (Game ID: 800373215) ✨</p>
+    <p style="color: #ffffff; font-size: 12px; margin: 0;">अॅपमधील जाहिरातींचे लोडिंग सुरू आहे...</p>
+</div>
+""", unsafe_allow_html=True)
