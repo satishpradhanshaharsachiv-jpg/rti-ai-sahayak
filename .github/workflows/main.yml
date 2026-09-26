@@ -11,14 +11,21 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    - name: Prepare Watch App Files
-      run: |
-        mkdir -p watch-app/app/src/main/assets
-        cp -r * watch-app/app/src/main/assets/ 2>/dev/null || true
-        echo "Watch app files prepared successfully"
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
 
-    - name: Upload Watch Artifact
+    - name: Create Watch Project Structure
+      run: |
+        npx react-native-tizen init watchApp --skip-install || true
+        mkdir -p my-watch-app/app/src/main/assets
+        cp -r * my-watch-app/app/src/main/assets/ 2>/dev/null || true
+        echo "Watch structure ready"
+
+    - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: watch-app-aab
-        path: watch-app/
+        name: samsung-watch-app
+        path: my-watch-app/
